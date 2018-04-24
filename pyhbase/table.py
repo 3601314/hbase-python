@@ -7,7 +7,7 @@
 
 from collections import deque
 
-from pyhbase.rest import Row
+from pyhbase import rest
 from pyhbase.stream_io import StreamWriter, StreamReader
 
 
@@ -15,17 +15,23 @@ class Table(object):
 
     def __init__(self,
                  namespace,
-                 name):
-        """HBase table object.
+                 name,
+                 batch_size=1000):
+        """Table object.
 
-        :param namespace:
-        :param name:
+        Args:
+            namespace (pyhbase.namespace.Namespace): Namespace object.
+            name (str): Table name.
+            batch_size (int): Batch size for batch put operation.
+
         """
         self._namespace = namespace
         self._name = name
+        self._batch_size = batch_size
 
         self._full_name = namespace.prefix + name
         self._client = namespace.client
+        self._batch = deque()
 
     @property
     def name(self):
@@ -37,13 +43,27 @@ class Table(object):
 
     @property
     def client(self):
+        """Client object.
+
+        Returns:
+            rest.Client: Client object.
+
+        """
         return self._client
 
     def row(self, key):
         """Get a row with the row key.
 
-        :param str key: Row key.
-        :return Row: The row object, or None if the row does not exist.
+        Args:
+            key (str): Row key.
+
+        Returns:
+            rest.Row: The row object.
+            None: The row does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         return self._client.row(self._full_name, key)
 
@@ -56,13 +76,21 @@ class Table(object):
              batch_size=16):
         """Scan the table.
 
-        :param str start_row: Start row key.
-        :param str end_row: End row key.
-        :param list columns: Columns.
-        :param int start_time: Start time.
-        :param int end_time: End time.
-        :param int batch_size: Batch size.
-        :return: A cursor object if success.
+        Args:
+            start_row (str): Start rwo key.
+            end_row (str): End row key.
+            columns (list[str]): Columns.
+            start_time (int): Start timestamp.
+            end_time (int): End timestamp.
+            batch_size (int): Batch size.
+
+        Returns:
+            Cursor: Cursor object if success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: The table does not exist.
+
         """
         scanner_url = self._client.create_scanner(
             self._full_name,
@@ -76,12 +104,46 @@ class Table(object):
         return Cursor(self, scanner_url)
 
     def put(self, row):
-        """Put one row to table.
+        """Put one row into the table.
 
-        :param Row row: Row to put.
+        Args:
+            row (pyhbase.rest.Row): Row object.
+
+        Returns:
+            True: Success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
+        """
+        self.flush()
+        return self._client.put(self._full_name, row)
+
+    def put_many(self, rows):
+        """Put multiple rows to table.
+
+        :param list[pyhbase.rest.Row] rows: List of rows.
         :return: True if success.
         """
-        return self._client.put(self._full_name, row)
+        self.flush()
+        return self._client.put_many(self._full_name, rows)
+
+    def batch_put(self, row):
+        """Put for batch.
+        The put operation will not perform immediately, and the row will be put into a buffer.
+
+        :param pyhbase.rest.Row row:
+        :return:
+        """
+        self._batch.append(row)
+        if len(self._batch) >= self._batch_size:
+            return self._client.put_many(self._full_name, self._batch)
+        return True
+
+    def flush(self):
+        if len(self._batch) != 0:
+            return self._client.put_many(self._full_name, self._batch)
+        return True
 
     def check_and_put(self,
                       row,
@@ -89,7 +151,7 @@ class Table(object):
                       check_value=None):
         """Put one row to table.
 
-        :param Row row: Row to put.
+        :param pyhbase.rest.Row row: Row to put.
         :param str check_column: Column to check.
         :param bytes check_value: Value to check.
         :return: True if success, False if not modified.
@@ -104,14 +166,6 @@ class Table(object):
             check_column,
             check_value
         )
-
-    def put_many(self, rows):
-        """Put multiple rows to table.
-
-        :param list rows: List of rows.
-        :return: True if success.
-        """
-        return self._client.put_many(self._full_name, rows)
 
     def delete(self, key):
         """Delete a row.
@@ -132,7 +186,7 @@ class Table(object):
         :param int chunk_size:
         :return:
         """
-        meta_row = Row(filename, {column: b''})
+        meta_row = rest.Row(filename, {column: b''})
         if not self.check_and_put(meta_row, check_column=column):
             raise IOError('File %s exists in table %s.' % (filename, self._full_name))
         return StreamWriter(self, filename, column, chunk_size)
@@ -156,7 +210,7 @@ class Table(object):
         """
         :param str key:
         :param str column:
-        :return StreamReader:
+        :return pyhbase.stream_io.StreamReader:
         """
         if self.row(key) is None:
             raise IOError('File %s not found in table %s.' % (key, self._full_name))
@@ -175,9 +229,11 @@ class Table(object):
 class Cursor(object):
 
     def __init__(self, table, scanner_url):
-        """
-        :param Table table:
-        :param str scanner_url:
+        """Cursor object.
+
+        Args:
+            table (Table): Table object.
+            scanner_url (str): Scanner URL.
         """
         self._table = table
         self._scanner_url = scanner_url
@@ -198,8 +254,15 @@ class Cursor(object):
         return self
 
     def __next__(self):
-        """
-        :return Row:
+        """Get next row.
+
+        Returns:
+           pyhbase.rest.Row: Row object.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            StopIteration: If there are no more rows.
+
         """
         if len(self._buffer) == 0:
             batch = self._client.iter_scanner(self._scanner_url)

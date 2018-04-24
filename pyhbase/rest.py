@@ -27,8 +27,10 @@ class RESTError(RuntimeError):
     def __init__(self, code=None, message=None):
         """REST server error.
 
-        :param int code: Return code from the REST server.
-        :param str message: The corresponding error message.
+        Args:
+            code (int):Return code from the REST server.
+            message (str): The corresponding error message.
+
         """
         text = ''
         if code is not None:
@@ -41,10 +43,12 @@ class RESTError(RuntimeError):
 class Row(dict):
 
     def __init__(self, key=None, cells=None):
-        """Row Object.
+        """Row object.
 
-        :param str key: Row key.
-        :param dict cells: {'family:qualifier': b'data'}
+        Args:
+            key (str): Row key.
+            cells (dict[str, bytes]): Cells, e.g., {'family:qualifier': b'data'}
+
         """
         super(Row, self).__init__(cells)
         self.key = key
@@ -59,10 +63,12 @@ class Row(dict):
 class Client(object):
 
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT):
-        """REST client.
+        """REST client object.
 
-        :param str host: Hostname or address.
-        :param int port: Port number.
+        Args:
+            host (str): Hostname or IP address.
+            port (int): Port number.
+
         """
         self._host = host
         self._port = port
@@ -81,7 +87,12 @@ class Client(object):
     def namespaces(self):
         """Get namespaces.
 
-        :return list: List of namespaces' names.
+        Returns:
+            list[str]: List of namespace names.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.get(
             url='/'.join((self._base_url, 'namespaces')),
@@ -104,8 +115,16 @@ class Client(object):
     def namespace(self, namespace):
         """Get descriptions of the namespace.
 
-        :param str namespace: Name of the namespace.
-        :return: {'property': 'value'} or None if the namespace does not exist.
+        Args:
+            namespace (str): Name of the namespace.
+
+        Returns:
+            dict[str, str]: Descriptions in dict, e.g., {'property': 'value'}.
+            None: The namespace does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.get(
             url='/'.join((self._base_url, 'namespaces', namespace)),
@@ -130,9 +149,17 @@ class Client(object):
     def create_namespace(self, namespace, props=None):
         """Create a namespace.
 
-        :param str namespace: Name of the namespace.
-        :param dict props: Custom properties.
-        :return: True if success, False if the namespace exists.
+        Args:
+            namespace (str): Name of the namespace.
+            props (dict[str, str]): Custom properties.
+
+        Returns:
+            True: Success.
+            False: The namespace exists.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         namespace_properties = protobuf_schema.NamespaceProperties()
         if props is not None:
@@ -163,8 +190,16 @@ class Client(object):
     def delete_namespace(self, namespace):
         """Delete namespace.
 
-        :param str namespace: Name of the namespace.
-        :return: True if success, False if the namespace does not exist.
+        Args:
+            namespace (str): Name of the namespace.
+
+        Returns:
+            True: Success.
+            False: The namespace does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.delete(
             url='/'.join((self._base_url, 'namespaces', namespace)),
@@ -184,8 +219,16 @@ class Client(object):
     def tables(self, namespace=None):
         """Get the table names under the given namespace.
 
-        :param str namespace: Name of the namespace.
-        :return list: List of tables names, or None if the namespace does not exist.
+        Args:
+            namespace (str): Name of the namespace.
+
+        Returns:
+            list[str]: List of tables names
+            None: The namespace does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         if namespace is None:
             response = self._session.get(
@@ -227,8 +270,16 @@ class Client(object):
     def table(self, table):
         """Get table schema.
 
-        :param str table: Table name.
-        :return dict: A dict that describe the table schema, or None if the table dose not exist.
+        Args:
+            table (str): Table name.
+
+        Returns:
+            dict[str, T]: Description of the table.
+            None: The table does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.get(
             url='/'.join((self._base_url, table, 'schema')),
@@ -271,9 +322,17 @@ class Client(object):
     def create_table(self, table, families=DEFAULT_FAMILIES):
         """Create table.
 
-        :param str table: Table name.
-        :param dict families: Column families. {'family_name': {'attr': 'value'}}
-        :return: True if success, False if the table exists.
+        Args:
+            table (str): Table name.
+            families (dict[str, dict[str, T]]): Column families, e.g., {'family_name': {'attr': value}}.
+
+        Returns:
+            True: Success.
+            False: The table exists.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         table_schema = protobuf_schema.TableSchema()
         table_schema.name = table
@@ -307,8 +366,16 @@ class Client(object):
     def delete_table(self, table):
         """Delete table.
 
-        :param str table: Table name.
-        :return: True if success, False if the table does not exist.
+        Args:
+            table (str): Table name.
+
+        Returns:
+            True: Success.
+            False: The table dose not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.delete(
             url='/'.join((self._base_url, table, 'schema')),
@@ -326,11 +393,19 @@ class Client(object):
             raise RESTError(code, response.text)
 
     def row(self, table, key):
-        """Get a row with the row key.
+        """Query to get a row object with a row key.
 
-        :param str table: Table name.
-        :param str key: Row key.
-        :return Row: The row object, or None if the row does not exist.
+        Args:
+            table (str): Table name.
+            key (str): Row key.
+
+        Returns:
+            Row: The row object.
+            None: The row does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.get(
             url='/'.join((self._base_url, table, key)),
@@ -368,14 +443,22 @@ class Client(object):
                        batch_size=16):
         """Create a scanner for a table.
 
-        :param str table: Table name.
-        :param str start_row: Start row key.
-        :param str end_row: End row key.
-        :param list columns: Columns.
-        :param int start_time: Start time.
-        :param int end_time: End time.
-        :param int batch_size: Batch size.
-        :return: The scanner if success, or None if the table does not exist.
+        Args:
+            table (str): Table name.
+            start_row (str): Start row key.
+            end_row (str): End row key.
+            columns (list[str]): Columns to fetch.
+            start_time (int): Start timestamp.
+            end_time (int): End timestamp.
+            batch_size (int): Batch size.
+
+        Returns:
+            str: A scanner URL which can be then used to iterate the table rows.
+            None: THe table does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         scanner = protobuf_schema.Scanner()
         if start_row is not None:
@@ -412,10 +495,17 @@ class Client(object):
             raise RESTError(code, response.text)
 
     def delete_scanner(self, scanner_url):
-        """Delete the scanner.
+        """Delete a scanner.
 
-        :param str scanner_url: The url returned by "create_scanner()".
-        :return: True if success.
+        Args:
+            scanner_url (str): The scanner URL which returned from "create_scanner".
+
+        Returns:
+            True: Success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.delete(scanner_url)
 
@@ -426,13 +516,21 @@ class Client(object):
             raise RESTError(code, response.text)
 
     def iter_scanner(self, scanner_url):
-        """Iterate the scanner.
+        """Iterate a scanner.
 
-        :param str scanner_url: The url returned by "create_scanner()".
-        :return list: List of rows if there are rows available, or None if there is no more content.
+        Args:
+            scanner_url (str): The scanner URL which returned from "create_scanner".
+
+        Returns:
+            list[Row]: List of row.
+            None: There is not more content to be iterated.
+
+        Raises:
+            RESTError: REST server returns other errors.
 
         Note that the scanner will not be closed(deleted) when the rows exhausted.
         You should close it manually.
+
         """
         response = self._session.get(
             url=scanner_url,
@@ -460,14 +558,19 @@ class Client(object):
         else:
             raise RESTError(code, response.text)
 
-    def put(self,
-            table,
-            row):
-        """Put one row to table.
+    def put(self, table, row):
+        """Put(insert) one row to the table.
 
-        :param str table: Table name.
-        :param Row row: Row to put.
-        :return: True if success.
+        Args:
+            table (str): Table name.
+            row (Row): Row to insert.
+
+        Returns:
+            True: Success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         cell_set = protobuf_schema.CellSet()
         row_ = cell_set.rows.add()
@@ -497,17 +600,25 @@ class Client(object):
                       row,
                       check_column,
                       check_value=None):
-        """Put one row to table.
-
-        :param str table: Table name.
-        :param Row row: Row to put.
-        :param str check_column: Column to check.
-        :param bytes check_value: Value to check.
-        :return: True if success, False if not modified.
+        """Put(insert) one row to the table when the given condition is satisfied.
 
         Atomically checks if a row/family/qualifier value matches the expected value.
         If it does, it adds the put.
         If the passed value is None(or b''), the check is for the lack of column (ie: non-existance)
+
+        Args:
+            table (str): Table name.
+            row (Row): Row to insert.
+            check_column (str): Column to check.
+            check_value (bytes): Value to check.
+
+        Returns:
+            True: Success.
+            False: Not modified. (The given condition is not satisfied.)
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         cell_set = protobuf_schema.CellSet()
         row_ = cell_set.rows.add()
@@ -542,11 +653,18 @@ class Client(object):
             raise RESTError(code, response.text)
 
     def put_many(self, table, rows):
-        """Put multiple rows to table.
+        """Put(insert) multiple rows to the table.
 
-        :param str table: Table name.
-        :param list rows: List of rows.
-        :return: True if success.
+        Args:
+            table (str): Table name.
+            rows (list[Row] | collections.deque): Row to insert.
+
+        Returns:
+            True: Success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         cell_set = protobuf_schema.CellSet()
         for row in rows:
@@ -575,9 +693,17 @@ class Client(object):
     def delete(self, table, key):
         """Delete a row.
 
-        :param str table: Table name.
-        :param str key: Row key.
-        :return: True if success, False if the table does not exist.
+        Args:
+            table (str): Table name.
+            key (str): Row key.
+
+        Returns:
+            True: Success.
+            False: The table does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         response = self._session.delete(
             url='/'.join((self._base_url, table, key)),
@@ -593,12 +719,3 @@ class Client(object):
             return False
         else:
             raise RESTError(code, response.text)
-
-
-if __name__ == '__main__':
-    client = Client('202.38.75.5', 2222)
-    ret = client.create_scanner('maymay:second', columns=['CF:scorem', 'CF:name'])
-    print(ret)
-    ret = client.iter_scanner(ret)
-    print(ret)
-    exit()

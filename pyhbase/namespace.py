@@ -13,10 +13,11 @@ DEFAULT_COLUMN_FAMILIES = {'cf': dict()}
 class Namespace(object):
 
     def __init__(self, conn, name):
-        """
+        """Namespace object.
 
-        :param Connection conn:
-        :param str name:
+        Args:
+            conn (pyhbase.connection.Connection): Connection object.
+            name (str): Name of the namespace.
         """
         self._conn = conn
         self._name = name
@@ -35,20 +36,39 @@ class Namespace(object):
 
     @property
     def client(self):
+        """Client object.
+
+        Returns:
+            pyhbase.rest.Client: Client object.
+
+        """
         return self._client
 
     def tables(self):
-        """List tables.
+        """List tables of the namespace.
 
-        :return list: List of table names.
+        Returns:
+            list[str]: List of table names.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         return self._client.tables(self._name)
 
     def create_table(self, name, families=DEFAULT_COLUMN_FAMILIES):
         """Create a table.
 
-        :param str name: The table name
-        :param dict families: The name and options for each column family
+        Args:
+            name (str): Table name.
+            families (dict[str, dict]): The name and options for each column family.
+
+        Returns:
+            True: Success.
+            False: The table exists.
+
+        Raises:
+            RESTError: REST server returns other errors.
 
         The `families` argument is a dictionary mapping column family
         names to a dictionary containing the options for this column
@@ -72,18 +92,26 @@ class Namespace(object):
         * ``bloom_filter_nb_hashes`` (`int`)
         * ``block_cache_enabled`` (`bool`)
         * ``time_to_live`` (`int`)
+
         """
         full_name = self._prefix + name
         return self._client.create_table(full_name, families)
 
     def table(self, name, create_if_not_exists=True):
         """Get a table object.
-
-        :param str name: Name of the table.
-        :param bool create_if_not_exists: Create a new table if the required table does not exist.
-        :return Table: Table object.
-
         Note that if the table is automatically created, the default column family is "cf".
+
+        Args:
+            name (str): Table name.
+            create_if_not_exists (bool): Create a new table if the required table does not exist.
+
+        Returns:
+            Table: Table object.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: Table does not exist or failed to create a one.
+
         """
         full_name = self._prefix + name
         if name in self._tables:
@@ -100,12 +128,35 @@ class Namespace(object):
 
     def __getitem__(self, name):
         """Get a table object.
+        If the table does not exist, always create a new one.
+        Note that if the table is automatically created, the default column family is "cf".
 
-        :param str name: Name of the table.
-        :return Table: Table object.
+        Args:
+            name (str): Table name.
+
+        Returns:
+            Table: Table object.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: Table does not exist or failed to create a one.
+
         """
         return self.table(name)
 
     def delete_table(self, name):
+        """Delete a table.
+
+        Args:
+            name (str): Table name.
+
+        Returns:
+            True: Success.
+            False: The table dose not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
+        """
         full_name = self._prefix + name
         return self._client.delete_table(full_name)

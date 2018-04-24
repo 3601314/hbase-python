@@ -22,9 +22,11 @@ class Connection(object):
                  port=DEFAULT_PORT):
         """Connection.
 
-        :param on_close: Callback when connection close.
-        :param str host: Hostname or address.
-        :param int port: Port number.
+        Args:
+            on_close: Callback when connection close.
+            host (str): Hostname or address.
+            port (int): Port number.
+
         """
         self._on_close = on_close
         self._host = host or DEFAULT_HOST
@@ -43,6 +45,12 @@ class Connection(object):
 
     @property
     def client(self):
+        """Client object.
+
+        Returns:
+            rest.Client: Client object.
+
+        """
         return self._client
 
     def __del__(self):
@@ -60,25 +68,46 @@ class Connection(object):
     def namespaces(self):
         """List namespaces.
 
-        :return list: List of namespaces' names.
+        Returns:
+            list[str]: List of namespace names.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         return self._client.namespaces()
 
     def create_namespace(self, name, props=None):
         """Create a namespace.
 
-        :param str name: Name of the namespace.
-        :param dict props: Custom properties.
-        :return: True if success, False if the namespace exists.
+        Args:
+            name (str): Name of the namespace.
+            props (dict[str, str]): Custom properties.
+
+        Returns:
+            True: Success.
+            False: The namespace exists.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         return self._client.create_namespace(name, props)
 
     def namespace(self, name, create_if_not_exists=True):
         """Get a namespace object.
 
-        :param str name: Name of the namespace.
-        :param bool create_if_not_exists: Create a new namespace if the required namespace does not exist.
-        :return Namespace: Namespace object.
+        Args:
+            name (str): Name of the namespace.
+            create_if_not_exists (bool): Create a new namespace if the required namespace does not exist.
+
+        Returns:
+            Namespace: Namespace object.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: Namespace does not exist or failed to create a one.
+
         """
         if name in self._namespaces:
             return self._namespaces[name]
@@ -94,9 +123,18 @@ class Connection(object):
 
     def __getitem__(self, name):
         """Get a namespace object.
+        If the namespace does not exist, always create a new one.
 
-        :param str name: Name of the namespace.
-        :return Namespace: Namespace object.
+        Args:
+            name (str): Name of the namespace.
+
+        Returns:
+            Namespace: Namespace object.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: Namespace does not exist or failed to create a one.
+
         """
         return self.namespace(name)
 
@@ -109,9 +147,11 @@ class ConnectionPool(object):
                  max_size=10):
         """Connection pool.
 
-        :param str host: Hostname or address.
-        :param int port: Port number.
-        :param int max_size: Max pool size.
+        Args:
+            host (str): Hostname or address.
+            port (int): Port number.
+            max_size (int): Max pool size.
+
         """
         self._host = host
         self._port = port
@@ -119,9 +159,11 @@ class ConnectionPool(object):
         self._conns = collections.deque()
 
     def connect(self):
-        """Get a DB connection.
+        """Get a database connection.
 
-        :return Connection: A connection.
+        Returns:
+            Connection: A connection object.
+
         """
         if len(self._conns) > 0:
             return self._conns.pop(0)
@@ -130,8 +172,11 @@ class ConnectionPool(object):
 
     def _on_conn_close(self, conn):
         """Callback when connection close.
+        Not really close(delete) a connection, just put it back to the pool.
 
-        :param Connection conn: Connection to close.
+        Args:
+            conn (Connection): Connection object to close.
+
         """
         if len(self._conns) < self._max_size:
             self._conns.append(conn)
