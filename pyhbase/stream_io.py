@@ -15,15 +15,20 @@ class StreamWriter(object):
 
     def __init__(self,
                  table,
-                 key,
+                 filename,
                  column,
                  chunk_size):
-        """
-        :param Table table:
-        :param str key:
+        """Stream writer.
+
+        Args:
+            table (pyhbase.table.Table): Table object.
+            filename (str): Filename(identifier) in the table.
+            column (str): Column to store the data.
+            chunk_size (int): Chunk size.
+
         """
         self._table = table
-        self._key = key
+        self._filename = filename
         self._column = column
         self._chunk_size = chunk_size
 
@@ -32,8 +37,15 @@ class StreamWriter(object):
         self._size = 0
 
     def write(self, data):
-        """
-        :param bytes data:
+        """Write data.
+
+        Args:
+            data (bytes): Data to write.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: If the writer has been closed.
+
         """
         if self._buffer is None:
             raise RuntimeError('Failed to write. The writer has been closed.')
@@ -42,17 +54,11 @@ class StreamWriter(object):
         self._flush_chunks()
 
     def _write_meta_chunk(self, meta):
-        """
-        :param dict meta:
-        """
         data = json.dumps(meta).encode()
-        self._table.put(Row(self._key, {self._column: data}))
+        self._table.put(Row(self._filename, {self._column: data}))
 
     def _write_data_chunk(self, data):
-        """
-        :param bytes data:
-        """
-        key = '%s_%06d' % (self._key, self._num_chunks)
+        key = '%s_%06d' % (self._filename, self._num_chunks)
         self._table.put(Row(key, {self._column: data}))
 
     def _flush_chunks(self):
@@ -98,14 +104,17 @@ class StreamWriter(object):
 
 class StreamReader(object):
 
-    def __init__(self, table, key, column):
-        """
-        :param Table table:
-        :param str key:
-        :param str column:
+    def __init__(self, table, filename, column):
+        """Stream reader.
+
+        Args:
+            table (pyhbase.table.Table): Table object.
+            filename (str): Filename(identifier) to read from.
+            column (str): Column that stores the data.
+
         """
         self._table = table
-        self._key = key
+        self._key = filename
         self._column = column
 
     def read(self, n=-1):

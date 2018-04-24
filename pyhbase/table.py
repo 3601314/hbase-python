@@ -8,7 +8,7 @@
 from collections import deque
 
 from pyhbase import rest
-from pyhbase.stream_io import StreamWriter, StreamReader
+from pyhbase import stream_io
 
 
 class Table(object):
@@ -122,18 +122,32 @@ class Table(object):
     def put_many(self, rows):
         """Put multiple rows to table.
 
-        :param list[pyhbase.rest.Row] rows: List of rows.
-        :return: True if success.
+        Args:
+            rows (list[pyhbase.rest.Row]):List of rows.
+
+        Returns:
+            True: Success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         self.flush()
         return self._client.put_many(self._full_name, rows)
 
     def batch_put(self, row):
-        """Put for batch.
-        The put operation will not perform immediately, and the row will be put into a buffer.
+        """Put row for batch.
+        The actual put operation will not perform immediately, and the row will be put into a buffer.
 
-        :param pyhbase.rest.Row row:
-        :return:
+        Args:
+            row (pyhbase.rest.Row): Row to put.
+
+        Returns:
+            True: Success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         self._batch.append(row)
         if len(self._batch) >= self._batch_size:
@@ -149,16 +163,23 @@ class Table(object):
                       row,
                       check_column=None,
                       check_value=None):
-        """Put one row to table.
-
-        :param pyhbase.rest.Row row: Row to put.
-        :param str check_column: Column to check.
-        :param bytes check_value: Value to check.
-        :return: True if success, False if not modified.
-
+        """Put one row to the table.
         Atomically checks if a row/family/qualifier value matches the expected value.
         If it does, it adds the put.
         If the passed value is None(or b''), the check is for the lack of column (ie: non-existance)
+
+        Args:
+            row (pyhbase.rest.Row): Row to put.
+            check_column (str): Column to check.
+            check_value (bytes): Valur to check.
+
+        Returns:
+            True: Success.
+            False: Not modified.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         return self._client.check_and_put(
             self._full_name,
@@ -168,10 +189,18 @@ class Table(object):
         )
 
     def delete(self, key):
-        """Delete a row.
+        """Delete a row by key.
 
-        :param str key: Row key.
-        :return: True if success, False if the table does not exist.
+        Args:
+            key (str): Row key.
+
+        Returns:
+            True: Success.
+            False: The table does not exist.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         return self._client.delete(self._full_name, key)
 
@@ -179,50 +208,78 @@ class Table(object):
                       filename,
                       column='cf:chunk',
                       chunk_size=8388608):
-        """
+        """Create a stream writer.
 
-        :param str filename:
-        :param str column:
-        :param int chunk_size:
-        :return:
+        Args:
+            filename (str): Filename(identifier) the writer will write data to.
+            column (str): Column that the writer store the data.
+            chunk_size (int): Chunk size.
+
+        Returns:
+            stream_io.StreamWriter: The stream writer if success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
         meta_row = rest.Row(filename, {column: b''})
         if not self.check_and_put(meta_row, check_column=column):
             raise IOError('File %s exists in table %s.' % (filename, self._full_name))
-        return StreamWriter(self, filename, column, chunk_size)
+        return stream_io.StreamWriter(self, filename, column, chunk_size)
 
     def write_bytes(self,
-                    key,
+                    filename,
                     data,
                     column='cf:chunk',
                     chunk_size=8388608):
-        """
+        """Write bytes as a file to the table.
 
-        :param str key:
-        :param bytes data:
-        :param str column:
-        :param int chunk_size:
+        Args:
+            filename (str): Filename(identifier) the writer will write data to.
+            data (bytes): Data to write.
+            column (str): Column that the writer store the data.
+            chunk_size (int): Chunk size.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
-        with self.stream_writer(key, column, chunk_size) as f:
+        with self.stream_writer(filename, column, chunk_size) as f:
             f.write(data)
 
-    def stream_reader(self, key, column='cf:chunk'):
-        """
-        :param str key:
-        :param str column:
-        :return pyhbase.stream_io.StreamReader:
-        """
-        if self.row(key) is None:
-            raise IOError('File %s not found in table %s.' % (key, self._full_name))
-        return StreamReader(self, key, column)
+    def stream_reader(self, filename, column='cf:chunk'):
+        """Create a stream reader.
 
-    def read_bytes(self, key, column='cf:chunk'):
+        Args:
+            filename (str): Filename(identifier) in the table.
+            column (str): Column that the reader reads data from.
+
+        Returns:
+            stream_io.StreamReader: The stream reader if success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
-        :param str key:
-        :param str column:
-        :return bytes:
+        if self.row(filename) is None:
+            raise IOError('File %s not found in table %s.' % (filename, self._full_name))
+        return stream_io.StreamReader(self, filename, column)
+
+    def read_bytes(self, filename, column='cf:chunk'):
+        """Read bytes from the table.
+
+        Args:
+            filename (str): Filename(identifier) the reader will read from.
+            column (str): Column that the reader reads data.
+
+        Returns:
+            bytes: All bytes of the file if success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
         """
-        with self.stream_reader(key, column) as f:
+        with self.stream_reader(filename, column) as f:
             return f.read()
 
 
