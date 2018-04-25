@@ -462,9 +462,9 @@ class Client(object):
         """
         scanner = protobuf_schema.Scanner()
         if start_row is not None:
-            scanner.startRow = start_row
+            scanner.startRow = start_row.encode()
         if end_row is not None:
-            scanner.endRow = end_row
+            scanner.endRow = end_row.encode()
         if columns is not None:
             scanner.columns.extend([
                 column.encode()
