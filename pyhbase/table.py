@@ -73,7 +73,7 @@ class Table(object):
              columns=None,
              start_time=None,
              end_time=None,
-             batch_size=16):
+             batch_size=100):
         """Scan the table.
 
         Args:
@@ -151,12 +151,16 @@ class Table(object):
         """
         self._batch.append(row)
         if len(self._batch) >= self._batch_size:
-            return self._client.put_many(self._full_name, self._batch)
+            ret = self._client.put_many(self._full_name, self._batch)
+            self._batch.clear()
+            return ret
         return True
 
     def flush(self):
         if len(self._batch) != 0:
-            return self._client.put_many(self._full_name, self._batch)
+            ret = self._client.put_many(self._full_name, self._batch)
+            self._batch.clear()
+            return ret
         return True
 
     def check_and_put(self,

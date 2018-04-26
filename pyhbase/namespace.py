@@ -97,7 +97,7 @@ class Namespace(object):
         full_name = self._prefix + name
         return self._client.create_table(full_name, families)
 
-    def table(self, name, batch_size=100, create_if_not_exists=True):
+    def table(self, name, batch_size=1000, create_if_not_exists=True):
         """Get a table object.
         Note that if the table is automatically created, the default column family is "cf".
 
