@@ -106,7 +106,7 @@ class Connection(object):
 
         Raises:
             RESTError: REST server returns other errors.
-            RuntimeError: Namespace does not exist or failed to create a one.
+            RuntimeError: Namespace does not exist or failed to create a new one.
 
         """
         if name in self._namespaces:
@@ -133,7 +133,7 @@ class Connection(object):
 
         Raises:
             RESTError: REST server returns other errors.
-            RuntimeError: Namespace does not exist or failed to create a one.
+            RuntimeError: Namespace does not exist or failed to create a new one.
 
         """
         return self.namespace(name)

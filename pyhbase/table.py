@@ -16,7 +16,7 @@ class Table(object):
     def __init__(self,
                  namespace,
                  name,
-                 batch_size=1000):
+                 batch_size):
         """Table object.
 
         Args:

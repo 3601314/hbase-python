@@ -97,12 +97,13 @@ class Namespace(object):
         full_name = self._prefix + name
         return self._client.create_table(full_name, families)
 
-    def table(self, name, create_if_not_exists=True):
+    def table(self, name, batch_size=100, create_if_not_exists=True):
         """Get a table object.
         Note that if the table is automatically created, the default column family is "cf".
 
         Args:
             name (str): Table name.
+            batch_size (int): Batch size for "Table.batch_put()".
             create_if_not_exists (bool): Create a new table if the required table does not exist.
 
         Returns:
@@ -122,7 +123,7 @@ class Namespace(object):
                     raise RuntimeError('Failed to create table %s.' % full_name)
             else:
                 raise RuntimeError('Table %s does not exist.' % full_name)
-        table = Table(self, name)
+        table = Table(self, name, batch_size)
         self._tables[name] = table
         return table
 

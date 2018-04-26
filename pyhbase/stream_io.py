@@ -114,7 +114,7 @@ class StreamReader(object):
 
         """
         self._table = table
-        self._key = filename
+        self._filename = filename
         self._column = column
 
     def read(self, n=-1):
