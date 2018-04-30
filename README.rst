@@ -1,9 +1,9 @@
-pyhbase
+hbase-python
 ^^^^^^^^^^^^
 
 (The development of this package has not finished.)
 
-pybase is a python package used to work HBase.
+hbase-python is a python package used to work HBase.
 
 It is now tested under HBase 1.2.6.
 
@@ -22,4 +22,7 @@ Dependencies
 Installation
 ------------
 
-(The development of this package has not finished.)
+The package can be installed from PyPI repository::
+
+    pip3 install hbase-python
+

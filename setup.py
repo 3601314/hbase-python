@@ -12,14 +12,14 @@ if __name__ == '__main__':
             'hbase',
             'hbase.protobuf_schema'
         ],
-        version='0.1',
+        version='0.2',
         keywords=('hbase', 'hbase-client', 'hadoop'),
         description='User friendly HBase client for Python 3.',
         long_description=long_description,
         license='Free',
         author='dm.ustc.edu.cn',
         author_email='gylv@mail.ustc.edu.cn',
-        url='https://github.com/non-smile/hbase-python',
+        url='https://github.com/3601314/hbase-python',
         platforms='any',
         classifiers=[
             'Programming Language :: Python :: 3.4',
