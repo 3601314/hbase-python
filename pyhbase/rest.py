@@ -77,11 +77,17 @@ class Client(object):
 
     def __del__(self):
         if self._session is not None:
-            self._session.close()
+            try:
+                self._session.close()
+            except ReferenceError:
+                pass
 
     def close(self):
         if self._session is not None:
-            self._session.close()
+            try:
+                self._session.close()
+            except ReferenceError:
+                pass
             self._session = None
 
     def namespaces(self):

@@ -19,7 +19,7 @@ if __name__ == '__main__':
         license='Free',
         author='dm.ustc.edu.cn',
         author_email='gylv@mail.ustc.edu.cn',
-        # url='https://github.com/XoriieInpottn/pyhbase',
+        url='https://github.com/non-smile/pyhbase',
         platforms='any',
         classifiers=[
             'Programming Language :: Python :: 3.4',

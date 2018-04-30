@@ -226,10 +226,23 @@ class Table(object):
             RESTError: REST server returns other errors.
 
         """
-        meta_row = rest.Row(filename, {column: b''})
-        if not self.check_and_put(meta_row, check_column=column):
-            raise IOError('File %s exists in table %s.' % (filename, self._full_name))
         return stream_io.StreamWriter(self, filename, column, chunk_size)
+
+    def stream_reader(self, filename, column='cf:chunk'):
+        """Create a stream reader.
+
+        Args:
+            filename (str): Filename(identifier) in the table.
+            column (str): Column that the reader reads data from.
+
+        Returns:
+            stream_io.StreamReader: The stream reader if success.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
+        """
+        return stream_io.StreamReader(self, filename, column)
 
     def write_bytes(self,
                     filename,
@@ -250,24 +263,6 @@ class Table(object):
         """
         with self.stream_writer(filename, column, chunk_size) as f:
             f.write(data)
-
-    def stream_reader(self, filename, column='cf:chunk'):
-        """Create a stream reader.
-
-        Args:
-            filename (str): Filename(identifier) in the table.
-            column (str): Column that the reader reads data from.
-
-        Returns:
-            stream_io.StreamReader: The stream reader if success.
-
-        Raises:
-            RESTError: REST server returns other errors.
-
-        """
-        if self.row(filename) is None:
-            raise IOError('File %s not found in table %s.' % (filename, self._full_name))
-        return stream_io.StreamReader(self, filename, column)
 
     def read_bytes(self, filename, column='cf:chunk'):
         """Read bytes from the table.
@@ -311,6 +306,25 @@ class Cursor(object):
             self._client.delete_scanner(self._scanner_url)
             self._scanner_url = None
 
+    def next(self):
+        """Get next row.
+
+        Returns:
+           pyhbase.rest.Row: Row object.
+           None: If all rows have been iterated.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
+        """
+        if len(self._buffer) == 0:
+            batch = self._client.iter_scanner(self._scanner_url)
+            if batch is None or len(batch) == 0:
+                self.close()
+                return None
+            self._buffer.extend(batch)
+        return self._buffer.popleft()
+
     def __iter__(self):
         return self
 
@@ -322,7 +336,7 @@ class Cursor(object):
 
         Raises:
             RESTError: REST server returns other errors.
-            StopIteration: If there are no more rows.
+            StopIteration: If all rows have been iterated.
 
         """
         if len(self._buffer) == 0:
