@@ -7,8 +7,8 @@
 
 from collections import deque
 
-from pyhbase import rest
-from pyhbase import stream_io
+from hbase import rest
+from hbase import stream_io
 
 
 class Table(object):

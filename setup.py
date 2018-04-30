@@ -7,19 +7,19 @@ if __name__ == '__main__':
     with open('README.rst') as file:
         long_description = file.read()
     setup(
-        name='pyhbase',
+        name='hbase-python',
         packages=[
-            'pyhbase',
-            'pyhbase.protobuf_schema'
+            'hbase',
+            'hbase.protobuf_schema'
         ],
         version='0.1',
-        keywords=('hbase', 'hadoop'),
+        keywords=('hbase', 'hbase-client', 'hadoop'),
         description='User friendly HBase client for Python 3.',
         long_description=long_description,
         license='Free',
         author='dm.ustc.edu.cn',
         author_email='gylv@mail.ustc.edu.cn',
-        url='https://github.com/non-smile/pyhbase',
+        url='https://github.com/non-smile/hbase-python',
         platforms='any',
         classifiers=[
             'Programming Language :: Python :: 3.4',

@@ -7,7 +7,7 @@
 
 import requests
 
-from pyhbase import protobuf_schema
+from hbase import protobuf_schema
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080

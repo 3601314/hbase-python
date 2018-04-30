@@ -8,7 +8,7 @@
 import io
 import json
 
-from pyhbase import rest
+from hbase import rest
 
 
 class StreamWriter(object):
