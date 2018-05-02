@@ -63,7 +63,7 @@ Scan a table:
                 print(row)
         exit()
 
-Put record to a tables:
+Put a record to a table:
 
 .. code-block:: python
 
@@ -83,7 +83,7 @@ Put record to a tables:
             ))
         exit()
 
-Write a file to table:
+Write a file to a table:
 
 .. code-block:: python
 
