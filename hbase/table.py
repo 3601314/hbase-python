@@ -17,18 +17,21 @@ class Table(object):
     def __init__(self,
                  namespace,
                  name,
-                 batch_size):
+                 write_batch_size,
+                 read_batch_size):
         """Table object.
 
         Args:
             namespace (hbase.namespace.Namespace): Namespace object.
             name (str): Table name.
-            batch_size (int): Batch size for batch put operation.
+            write_batch_size (int): Batch size for batch_put().
+            read_batch_size (int): Batch size for scan().
 
         """
         self._namespace = namespace
         self._name = name
-        self._batch_size = batch_size
+        self._write_batch_size = write_batch_size
+        self._read_batch_size = read_batch_size
 
         self._full_name = namespace.prefix + name
         self._client = namespace.client
@@ -37,6 +40,38 @@ class Table(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def write_batch_size(self):
+        return self._write_batch_size
+
+    @write_batch_size.setter
+    def write_batch_size(self, value):
+        """Setter of write_batch_size.
+
+        Args:
+            value (int): New value.
+
+        """
+        if value <= 0:
+            raise ValueError('write_batch_size should be positive value.')
+        self._write_batch_size = value
+
+    @property
+    def read_batch_size(self):
+        return self._read_batch_size
+
+    @read_batch_size.setter
+    def read_batch_size(self, value):
+        """Setter of read_batch_size.
+
+        Args:
+            value (int): New value.
+
+        """
+        if value <= 0:
+            raise ValueError('read_batch_size should be positive value.')
+        self._read_batch_size = value
 
     @property
     def full_name(self):
@@ -74,7 +109,7 @@ class Table(object):
              columns=None,
              start_time=None,
              end_time=None,
-             batch_size=100):
+             batch_size=-1):
         """Scan the table.
 
         Args:
@@ -84,6 +119,7 @@ class Table(object):
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
             batch_size (int): Batch size.
+                Default is -1, which means use the table's read_batch_size.
 
         Returns:
             Cursor: Cursor object if success.
@@ -98,7 +134,7 @@ class Table(object):
             start_row, end_row,
             columns,
             start_time, end_time,
-            batch_size
+            batch_size if batch_size > 0 else self._read_batch_size
         )
         if scanner_url is None:
             raise RuntimeError('Table %s does not exist.' % self._full_name)
@@ -151,7 +187,7 @@ class Table(object):
 
         """
         self._batch.append(row)
-        if len(self._batch) >= self._batch_size:
+        if len(self._batch) >= self._write_batch_size:
             ret = self._client.put_many(self._full_name, self._batch)
             self._batch.clear()
             return ret
