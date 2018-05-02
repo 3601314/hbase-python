@@ -62,7 +62,7 @@ class StreamWriter(object):
         self._table.put(rest.Row(self._filename, {self._column: data}))
 
     def _write_data_chunk(self, data):
-        key = '%s_%06d' % (self._filename, self._num_chunks)
+        key = '%s/%06d' % (self._filename, self._num_chunks)
         self._table.put(rest.Row(key, {self._column: data}))
 
     def _flush_chunks(self):
@@ -102,7 +102,7 @@ class StreamWriter(object):
         self._buffer = None
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
@@ -133,8 +133,8 @@ class StreamReader(object):
 
         self._buffer = io.BytesIO()
         self._cursor = table.scan(
-            start_row=filename,
-            end_row=filename + '_1',
+            start_row=filename + '/0',
+            end_row=filename + '/1',
             batch_size=1
         )
 
@@ -174,7 +174,7 @@ class StreamReader(object):
         self._buffer = None
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()

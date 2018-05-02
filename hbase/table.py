@@ -5,6 +5,7 @@
 @since: 2018-04-14
 """
 
+import os
 from collections import deque
 
 from hbase import rest
@@ -245,15 +246,15 @@ class Table(object):
         return stream_io.StreamReader(self, filename, column)
 
     def write_bytes(self,
-                    filename,
                     data,
+                    filename,
                     column='cf:chunk',
                     chunk_size=8388608):
         """Write bytes as a file to the table.
 
         Args:
-            filename (str): Filename(identifier) the writer will write data to.
             data (bytes): Data to write.
+            filename (str): Filename(identifier) the writer will write data to.
             column (str): Column that the writer store the data.
             chunk_size (int): Chunk size.
 
@@ -280,6 +281,60 @@ class Table(object):
         """
         with self.stream_reader(filename, column) as f:
             return f.read()
+
+    def write_file(self,
+                   file_path,
+                   filename=None,
+                   column='cf:chunk',
+                   chunk_size=8388608):
+        """Write file to table.
+
+        Args:
+            file_path (str): File path.
+            filename (str): Filename(identifier) the reader will read from.
+            column (str): Column that the reader reads data.
+            chunk_size (int): Chunk size.
+
+        Raises:
+            IOError: Failed to open the file.
+            RESTError: REST server returns other errors.
+
+        """
+        if filename is None:
+            filename = os.path.basename(file_path)
+        with open(file_path, 'rb') as f:
+            with self.stream_writer(filename, column, chunk_size) as f1:
+                while True:
+                    data = f.read(chunk_size)
+                    if not data:
+                        break
+                    f1.write(data)
+
+    def read_file(self,
+                  file_path,
+                  filename,
+                  column='cf:chunk',
+                  buffer_size=8388608):
+        """Read from the table and store the data to the file.
+
+        Args:
+            file_path (str): File path.
+            filename (str): Filename(identifier) the reader will read from.
+            column (str): Column that the reader reads data.
+            buffer_size (int): Buffer size.
+
+        Raises:
+            IOError: Failed to open the file.
+            RESTError: REST server returns other errors.
+
+        """
+        with self.stream_reader(filename, column) as reader:
+            with open(file_path, 'wb') as f:
+                while True:
+                    data = reader.read(buffer_size)
+                    if not data:
+                        break
+                    f.write(data)
 
 
 class Cursor(object):
