@@ -21,7 +21,7 @@ class Table(object):
         """Table object.
 
         Args:
-            namespace (pyhbase.namespace.Namespace): Namespace object.
+            namespace (hbase.namespace.Namespace): Namespace object.
             name (str): Table name.
             batch_size (int): Batch size for batch put operation.
 
@@ -52,7 +52,7 @@ class Table(object):
         """
         return self._client
 
-    def row(self, key):
+    def get(self, key):
         """Get a row with the row key.
 
         Args:
@@ -66,7 +66,7 @@ class Table(object):
             RESTError: REST server returns other errors.
 
         """
-        return self._client.row(self._full_name, key)
+        return self._client.get(self._full_name, key)
 
     def scan(self,
              start_row=None,
@@ -108,7 +108,7 @@ class Table(object):
         """Put one row into the table.
 
         Args:
-            row (pyhbase.rest.Row): Row object.
+            row (hbase.rest.Row): Row object.
 
         Returns:
             True: Success.
@@ -124,7 +124,7 @@ class Table(object):
         """Put multiple rows to table.
 
         Args:
-            rows (list[pyhbase.rest.Row]):List of rows.
+            rows (list[hbase.rest.Row]):List of rows.
 
         Returns:
             True: Success.
@@ -141,7 +141,7 @@ class Table(object):
         The actual put operation will not perform immediately, and the row will be put into a buffer.
 
         Args:
-            row (pyhbase.rest.Row): Row to put.
+            row (hbase.rest.Row): Row to put.
 
         Returns:
             True: Success.
@@ -174,7 +174,7 @@ class Table(object):
         If the passed value is None(or b''), the check is for the lack of column (ie: non-existance)
 
         Args:
-            row (pyhbase.rest.Row): Row to put.
+            row (hbase.rest.Row): Row to put.
             check_column (str): Column to check.
             check_value (bytes): Valur to check.
 
@@ -365,7 +365,7 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           pyhbase.rest.Row: Row object.
+           hbase.rest.Row: Row object.
            None: If all rows have been iterated.
 
         Raises:
@@ -387,7 +387,7 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           pyhbase.rest.Row: Row object.
+           hbase.rest.Row: Row object.
 
         Raises:
             RESTError: REST server returns other errors.

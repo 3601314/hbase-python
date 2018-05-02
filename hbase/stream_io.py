@@ -119,7 +119,7 @@ class StreamReader(object):
             column (str): Column that stores the data.
 
         """
-        meta_row = table.row(filename)
+        meta_row = table.get(filename)
         if meta_row is None:
             raise IOError('File %s not found in table %s.' % (filename, table.full_name))
 

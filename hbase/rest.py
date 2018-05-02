@@ -398,7 +398,7 @@ class Client(object):
         else:
             raise RESTError(code, response.text)
 
-    def row(self, table, key):
+    def get(self, table, key):
         """Query to get a row object with a row key.
 
         Args:
