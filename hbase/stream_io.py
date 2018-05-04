@@ -21,7 +21,7 @@ class StreamWriter(object):
         """Stream writer.
 
         Args:
-            table (pyhbase.table.Table): Table object.
+            table (hbase.table.Table): Table object.
             filename (str): Filename(identifier) in the table.
             column (str): Column to store the data.
             chunk_size (int): Chunk size.
@@ -114,7 +114,7 @@ class StreamReader(object):
         """Stream reader.
 
         Args:
-            table (pyhbase.table.Table): Table object.
+            table (hbase.table.Table): Table object.
             filename (str): Filename(identifier) to read from.
             column (str): Column that stores the data.
 
@@ -134,7 +134,7 @@ class StreamReader(object):
         self._buffer = io.BytesIO()
         self._cursor = table.scan(
             start_row=filename + '/0',
-            end_row=filename + '/1',
+            end_row=filename + '/9',
             batch_size=1
         )
 

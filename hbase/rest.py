@@ -428,16 +428,29 @@ class Client(object):
         if code == CODE_OK:
             cell_set = protobuf_schema.CellSet()
             cell_set.ParseFromString(response.content)
-            return [
-                Row(
+            count = len(cell_set.rows)
+            if count == 1:
+                row = cell_set.rows[0]
+                return Row(
                     key=row.key.decode(),
                     cells={
                         value.column.decode(): value.data
                         for value in row.values
                     }
                 )
-                for row in cell_set.rows
-            ]
+            elif count == 0:
+                return None
+            else:
+                return [
+                    Row(
+                        key=row.key.decode(),
+                        cells={
+                            value.column.decode(): value.data
+                            for value in row.values
+                        }
+                    )
+                    for row in cell_set.rows
+                ]
         elif code == CODE_NOT_FOUND:
             return None
         else:
@@ -530,6 +543,7 @@ class Client(object):
 
         Args:
             scanner_url (str): The scanner URL which returned from "create_scanner".
+                If the url is None, the method will return None.
 
         Returns:
             list[Row]: List of row.
@@ -542,6 +556,8 @@ class Client(object):
         You should close it manually.
 
         """
+        if scanner_url is None:
+            return None
         response = self._session.get(
             url=scanner_url,
             headers={
@@ -555,7 +571,7 @@ class Client(object):
             cell_set.ParseFromString(response.content)
             return [
                 Row(
-                    key=row.key,
+                    key=row.key.decode(),
                     cells={
                         value.column.decode(): value.data
                         for value in row.values

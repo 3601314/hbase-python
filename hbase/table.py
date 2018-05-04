@@ -411,7 +411,7 @@ class Cursor(object):
         """
         if len(self._buffer) == 0:
             batch = self._client.iter_scanner(self._scanner_url)
-            if batch is None or len(batch) == 0:
+            if batch is None:
                 self.close()
                 return None
             self._buffer.extend(batch)
