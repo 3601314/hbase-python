@@ -398,12 +398,13 @@ class Client(object):
         else:
             raise RESTError(code, response.text)
 
-    def get(self, table, key):
+    def get(self, table, key, columns=None):
         """Query to get a row object with a row key.
 
         Args:
             table (str): Table name.
             key (str): Row key.
+            columns (tuple[str]|list[str]): Columns to fetch.
 
         Returns:
             Row: The row object.
@@ -413,8 +414,11 @@ class Client(object):
             RESTError: REST server returns other errors.
 
         """
+        url = '/'.join((self._base_url, table, key))
+        if columns is not None:
+            url += '/' + ','.join(columns)
         response = self._session.get(
-            url='/'.join((self._base_url, table, key)),
+            url=url,
             headers={
                 'Accept': 'application/x-protobuf'
             }
@@ -453,7 +457,7 @@ class Client(object):
             table (str): Table name.
             start_row (str): Start row key.
             end_row (str): End row key.
-            columns (list[str]): Columns to fetch.
+            columns (tuple[str]|list[str]): Columns to fetch.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
             batch_size (int): Batch size.

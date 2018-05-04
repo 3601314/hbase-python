@@ -87,11 +87,12 @@ class Table(object):
         """
         return self._client
 
-    def get(self, key):
+    def get(self, key, columns=None):
         """Get a row with the row key.
 
         Args:
             key (str): Row key.
+            columns (tuple[str]|list[str]): Columns to get.
 
         Returns:
             rest.Row: The row object.
@@ -101,7 +102,7 @@ class Table(object):
             RESTError: REST server returns other errors.
 
         """
-        return self._client.get(self._full_name, key)
+        return self._client.get(self._full_name, key, columns)
 
     def scan(self,
              start_row=None,
@@ -115,7 +116,7 @@ class Table(object):
         Args:
             start_row (str): Start rwo key.
             end_row (str): End row key.
-            columns (list[str]): Columns.
+            columns (tuple[str]|list[str]): Columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
             batch_size (int): Batch size.
