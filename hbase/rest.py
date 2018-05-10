@@ -54,10 +54,10 @@ class Row(dict):
         self.key = key
 
     def __str__(self):
-        return '(%s, %s)' % (self.key, super(Row, self).__str__())
+        return '%s\t%s' % (self.key, super(Row, self).__repr__())
 
     def __repr__(self):
-        return '(%s, %s)' % (self.key, super(Row, self).__repr__())
+        return '%s\t%s' % (self.key, super(Row, self).__repr__())
 
 
 class Client(object):
@@ -456,6 +456,31 @@ class Client(object):
         else:
             raise RESTError(code, response.text)
 
+    def get_one(self, table):
+        """Get the first rows sample from the table.
+
+        Args:
+            table (str): Table name.
+
+        Returns:
+            Row: The first row in the table.
+            None: The table does not exist or there is no more rows.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
+        """
+        url = self.create_scanner(table, batch_size=1)
+        if url is None:
+            return None
+        try:
+            rows = self.iter_scanner(url)
+        finally:
+            self.delete_scanner(url)
+        if rows is None or len(rows) == 0:
+            return None
+        return rows[0]
+
     def create_scanner(self,
                        table,
                        start_row=None,
@@ -477,7 +502,7 @@ class Client(object):
 
         Returns:
             str: A scanner URL which can be then used to iterate the table rows.
-            None: THe table does not exist.
+            None: The table does not exist.
 
         Raises:
             RESTError: REST server returns other errors.

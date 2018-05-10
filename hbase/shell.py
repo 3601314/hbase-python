@@ -6,8 +6,9 @@
 """
 
 import argparse
-import hbase
 import shlex
+
+import hbase
 
 
 class Shell(object):
@@ -22,7 +23,6 @@ class Shell(object):
         self._conn = None
         self._conn = hbase.ConnectionPool(self._host, self._port).connect()
         self._ns = None
-        self._tbl = None
 
     def __enter__(self):
         self._conn = hbase.ConnectionPool(self._host, self._port).connect()
@@ -35,10 +35,7 @@ class Shell(object):
 
     def main(self):
         while True:
-            prompt = '%s:%s> ' % (
-                self._ns.name if self._ns is not None else '?',
-                self._tbl.name if self._tbl is not None else '?'
-            )
+            prompt = '%s:> ' % (self._ns.name if self._ns is not None else '?')
             try:
                 cmd = input(prompt).strip()
             except EOFError:
@@ -47,33 +44,37 @@ class Shell(object):
                 continue
             if cmd == 'exit':
                 break
-            args = shlex.split(cmd)
-            self._run_cmd(args[0], args[1:])
+            try:
+                args = shlex.split(cmd)
+                self._run_cmd(args[0], args[1:])
+            except Exception as e:
+                print(e)
         print('Bye bye.')
 
     def _run_cmd(self, cmd, args):
-        try:
-            exec('self._%s(args)' % cmd)
-        except AttributeError:
-            print('%s: command not found' % cmd)
-        except RuntimeError as e:
-            print(e)
-        except Exception as e:
-            print(e)
+        attr = '_' + cmd
+        if not hasattr(self, attr):
+            raise RuntimeError('%s: command not found' % cmd)
+        fun = getattr(self, attr)
+        if not callable(fun):
+            raise RuntimeError('%s: command not found' % cmd)
+        fun(args)
 
     def _ls(self, args):
         parser_name = 'ls'
         if parser_name not in self._parsers:
-            parser = argparse.ArgumentParser()
+            parser = argparse.ArgumentParser(prog=parser_name)
             self._parsers[parser_name] = parser
             parser.add_argument('--namespaces', '-n', action='store_true')
             parser.add_argument('--tables', '-t', action='store_true')
         args = self._parsers[parser_name].parse_args(args)
 
-        if args.namespaces:
+        if args.namespaces or (not args.namespaces and not args.tables):
             for ns in self._conn.namespaces():
                 print(ns)
-        elif args.tables:
+            return
+
+        if args.tables:
             if self._ns is None:
                 raise RuntimeError('No namespace selected. Please use "use [namespace]".')
             for tbl in self._ns.tables():
@@ -82,10 +83,9 @@ class Shell(object):
     def _use(self, args):
         parser_name = 'use'
         if parser_name not in self._parsers:
-            parser = argparse.ArgumentParser()
+            parser = argparse.ArgumentParser(prog=parser_name)
             self._parsers[parser_name] = parser
-            parser.add_argument('name', default=None)
-            parser.add_argument('--tables', '-t', action='store_true')
+            parser.add_argument('name', default=None, nargs='?')
         args = self._parsers[parser_name].parse_args(args)
 
         if args.name is None:
@@ -93,10 +93,22 @@ class Shell(object):
             self._tbl = None
             return
 
-        if args.tables:
-            return
-
         self._ns = self._conn.namespace(args.name, False)
+
+    def _get(self, args):
+        parser_name = 'get'
+        if parser_name not in self._parsers:
+            parser = argparse.ArgumentParser(prog=parser_name)
+            self._parsers[parser_name] = parser
+            parser.add_argument('table')
+            parser.add_argument('key', nargs='?')
+        args = self._parsers[parser_name].parse_args(args)
+
+        if self._ns is None:
+            raise RuntimeError('No namespace selected. Please use "use [namespace]".')
+        tbl = self._ns.table(args.table, False)
+        row = tbl.get(args.key) if args.key else tbl.get_one()
+        print(row)
 
 
 def main(args):

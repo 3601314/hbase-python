@@ -104,6 +104,19 @@ class Table(object):
         """
         return self._client.get(self._full_name, key, columns)
 
+    def get_one(self):
+        """Get the first rows sample from the table.
+
+        Returns:
+            Row: The first row in the table.
+            None: The table does not exist or there is no more rows.
+
+        Raises:
+            RESTError: REST server returns other errors.
+
+        """
+        return self._client.get_one(self._full_name)
+
     def scan(self,
              start_row=None,
              end_row=None,
