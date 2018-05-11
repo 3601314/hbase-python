@@ -10,6 +10,7 @@ from collections import deque
 
 from hbase import rest
 from hbase import stream_io
+from hbase import filters
 
 
 class Table(object):
@@ -168,6 +169,58 @@ class Table(object):
             scanner_url,
             batch_size if batch_size is not None else self._read_batch_size
         )
+
+    def count(self,
+              start_row=None,
+              end_row=None,
+              start_time=None,
+              end_time=None,
+              verbose=None,
+              verbose_interval=1000):
+        """Count the number of the rows in the table.
+
+        Args:
+            start_row (str): Start rwo key.
+            end_row (str): End row key.
+            start_time (int): Start timestamp.
+            end_time (int): End timestamp.
+            verbose ((int, hbase.rest.Row) -> T): Callback to notify the counting progress.
+            verbose_interval (int): Interval counts between verbose calls.
+
+        Returns:
+            int: The number of rows.
+
+        Raises:
+            RESTError: REST server returns other errors.
+            RuntimeError: The table does not exist.
+
+        """
+        count = 0
+        if verbose is None:
+            for _ in self.scan(
+                    start_row=start_row,
+                    end_row=end_row,
+                    start_time=start_time,
+                    end_time=end_time,
+                    batch_size=5000,
+                    caching=10000,
+                    filter_=filters.KeyOnlyFilter()
+            ):
+                count += 1
+        else:
+            for row in self.scan(
+                    start_row=start_row,
+                    end_row=end_row,
+                    start_time=start_time,
+                    end_time=end_time,
+                    batch_size=5000,
+                    caching=10000,
+                    filter_=filters.KeyOnlyFilter()
+            ):
+                count += 1
+                if count % verbose_interval == 0:
+                    verbose(count, row)
+        return count
 
     def put(self, row):
         """Put one row into the table.
