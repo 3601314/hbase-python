@@ -7,3 +7,7 @@
 
 from hbase.connection import ConnectionPool
 from hbase.rest import Row
+
+from hbase.filters import ColumnPrefixFilter
+from hbase.filters import KeyOnlyFilter
+from hbase.filters import FirstKeyOnlyFilter

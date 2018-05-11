@@ -124,7 +124,7 @@ class Table(object):
              batch=None,
              start_time=None,
              end_time=None,
-             filter=None,
+             filter_=None,
              caching=1000,
              batch_size=None):
         """Scan the table.
@@ -137,7 +137,7 @@ class Table(object):
                 Do not use this except you have super wide rows, e.g., 250 columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            filter (str): Filter.
+            filter_ (hbase.filters.Filter): Filter.
             caching (int): REST scanner caching.
             batch_size (int): Max number of rows in each REST request.
                 None means use the table's read_batch_size.
@@ -158,7 +158,7 @@ class Table(object):
             batch=batch,
             start_time=start_time,
             end_time=end_time,
-            filter=filter,
+            filter_=filter_,
             caching=caching
         )
         if scanner_url is None:

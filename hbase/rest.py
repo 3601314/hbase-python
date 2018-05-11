@@ -489,7 +489,7 @@ class Client(object):
                        batch=None,
                        start_time=None,
                        end_time=None,
-                       filter=None,
+                       filter_=None,
                        caching=1000):
         """Create a scanner for a table.
 
@@ -502,7 +502,7 @@ class Client(object):
                 Do not use this except you have super wide rows, e.g., 250 columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            filter (str): Filter.
+            filter_ (hbase.filters.Filter): Filter.
             caching (int): REST scanner caching.
 
         Returns:
@@ -543,8 +543,8 @@ class Client(object):
             scanner.startTime = start_time
         if end_time is not None:
             scanner.endTime = end_time
-        if filter is not None:
-            scanner.filter = filter
+        if filter_ is not None:
+            scanner.filter = str(filter_)
         if caching is not None:
             scanner.caching = caching
 
