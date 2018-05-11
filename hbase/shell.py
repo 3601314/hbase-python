@@ -9,6 +9,7 @@ import argparse
 import shlex
 
 import hbase
+import time
 
 
 class Shell(object):
@@ -102,13 +103,32 @@ class Shell(object):
             self._parsers[parser_name] = parser
             parser.add_argument('table')
             parser.add_argument('key', nargs='?')
+            parser.add_argument('--full', '-f', action='store_true', default=False)
         args = self._parsers[parser_name].parse_args(args)
 
         if self._ns is None:
             raise RuntimeError('No namespace selected. Please use "use [namespace]".')
         tbl = self._ns.table(args.table, False)
-        row = tbl.get(args.key) if args.key else tbl.get_one()
+        row = tbl.get(args.key) if args.key else tbl.get_one(not args.full)
         print(row)
+
+    def _count(self, args):
+        parser_name = 'count'
+        if parser_name not in self._parsers:
+            parser = argparse.ArgumentParser(prog=parser_name)
+            self._parsers[parser_name] = parser
+            parser.add_argument('table')
+        args = self._parsers[parser_name].parse_args(args)
+
+        if self._ns is None:
+            raise RuntimeError('No namespace selected. Please use "use [namespace]".')
+        tbl = self._ns.table(args.table, False)
+        t = time.time()
+        count = tbl.count(
+            verbose=lambda c, r: print('%d: %s' % (c, r.key))
+        )
+        t = time.time() - t
+        print('\nTotal count: %d. %d seconds used.' % (count, t))
 
 
 def main(args):

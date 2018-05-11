@@ -105,8 +105,11 @@ class Table(object):
         """
         return self._client.get(self._full_name, key, columns)
 
-    def get_one(self):
+    def get_one(self, key_only=False):
         """Get the first rows sample from the table.
+
+        Args:
+            key_only (bool): Only return column keys. Contents are replaced with b''.
 
         Returns:
             Row: The first row in the table.
@@ -116,7 +119,7 @@ class Table(object):
             RESTError: REST server returns other errors.
 
         """
-        return self._client.get_one(self._full_name)
+        return self._client.get_one(self._full_name, key_only)
 
     def scan(self,
              start_row=None,
@@ -202,7 +205,7 @@ class Table(object):
                     end_row=end_row,
                     start_time=start_time,
                     end_time=end_time,
-                    batch_size=5000,
+                    batch_size=1000,
                     caching=10000,
                     filter_=filters.KeyOnlyFilter()
             ):
@@ -213,7 +216,7 @@ class Table(object):
                     end_row=end_row,
                     start_time=start_time,
                     end_time=end_time,
-                    batch_size=5000,
+                    batch_size=1000,
                     caching=10000,
                     filter_=filters.KeyOnlyFilter()
             ):

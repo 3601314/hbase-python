@@ -8,6 +8,7 @@
 import requests
 
 from hbase import protobuf_schema
+from hbase import filters
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080
@@ -456,11 +457,12 @@ class Client(object):
         else:
             raise RESTError(code, response.text)
 
-    def get_one(self, table):
+    def get_one(self, table, key_only=False):
         """Get the first rows sample from the table.
 
         Args:
             table (str): Table name.
+            key_only (bool): Only return column keys. Contents are replaced with b''.
 
         Returns:
             Row: The first row in the table.
@@ -470,11 +472,12 @@ class Client(object):
             RESTError: REST server returns other errors.
 
         """
-        url = self.create_scanner(table, batch=1)
+        url = self.create_scanner(table, filter_=filters.KeyOnlyFilter()) \
+            if key_only else self.create_scanner(table)
         if url is None:
             return None
         try:
-            rows = self.iter_scanner(url)
+            rows = self.iter_scanner(url, 1)
         finally:
             self.delete_scanner(url)
         if rows is None or len(rows) == 0:
