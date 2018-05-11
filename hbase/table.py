@@ -121,19 +121,26 @@ class Table(object):
              start_row=None,
              end_row=None,
              columns=None,
+             batch=None,
              start_time=None,
              end_time=None,
-             batch_size=-1):
+             filter=None,
+             caching=1000,
+             batch_size=None):
         """Scan the table.
 
         Args:
             start_row (str): Start rwo key.
             end_row (str): End row key.
             columns (tuple[str]|list[str]): Columns.
+            batch (int): The maximum number of cells to return for each iteration.
+                Do not use this except you have super wide rows, e.g., 250 columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            batch_size (int): Batch size.
-                Default is -1, which means use the table's read_batch_size.
+            filter (str): Filter.
+            caching (int): REST scanner caching.
+            batch_size (int): Max number of rows in each REST request.
+                None means use the table's read_batch_size.
 
         Returns:
             Cursor: Cursor object if success.
@@ -145,14 +152,22 @@ class Table(object):
         """
         scanner_url = self._client.create_scanner(
             self._full_name,
-            start_row, end_row,
-            columns,
-            start_time, end_time,
-            batch_size if batch_size > 0 else self._read_batch_size
+            start_row=start_row,
+            end_row=end_row,
+            columns=columns,
+            batch=batch,
+            start_time=start_time,
+            end_time=end_time,
+            filter=filter,
+            caching=caching
         )
         if scanner_url is None:
             raise RuntimeError('Table %s does not exist.' % self._full_name)
-        return Cursor(self, scanner_url)
+        return Cursor(
+            self,
+            scanner_url,
+            batch_size if batch_size is not None else self._read_batch_size
+        )
 
     def put(self, row):
         """Put one row into the table.
@@ -389,15 +404,19 @@ class Table(object):
 
 class Cursor(object):
 
-    def __init__(self, table, scanner_url):
+    def __init__(self, table, scanner_url, batch_size=None):
         """Cursor object.
 
         Args:
             table (Table): Table object.
             scanner_url (str): Scanner URL.
+            batch_size (int): Max number of rows in each REST request.
+                None means return all rows.
+
         """
         self._table = table
         self._scanner_url = scanner_url
+        self._batch_size = batch_size
 
         self._client = table.client
         self._full_name = table.full_name
@@ -423,7 +442,7 @@ class Cursor(object):
 
         """
         if len(self._buffer) == 0:
-            batch = self._client.iter_scanner(self._scanner_url)
+            batch = self._client.iter_scanner(self._scanner_url, self._batch_size)
             if batch is None:
                 self.close()
                 return None
@@ -445,7 +464,7 @@ class Cursor(object):
 
         """
         if len(self._buffer) == 0:
-            batch = self._client.iter_scanner(self._scanner_url)
+            batch = self._client.iter_scanner(self._scanner_url, self._batch_size)
             if batch is None or len(batch) == 0:
                 self.close()
                 raise StopIteration()

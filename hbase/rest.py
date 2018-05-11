@@ -470,7 +470,7 @@ class Client(object):
             RESTError: REST server returns other errors.
 
         """
-        url = self.create_scanner(table, batch_size=1)
+        url = self.create_scanner(table, batch=1)
         if url is None:
             return None
         try:
@@ -486,9 +486,11 @@ class Client(object):
                        start_row=None,
                        end_row=None,
                        columns=None,
+                       batch=None,
                        start_time=None,
                        end_time=None,
-                       batch_size=16):
+                       filter=None,
+                       caching=1000):
         """Create a scanner for a table.
 
         Args:
@@ -496,9 +498,12 @@ class Client(object):
             start_row (str): Start row key.
             end_row (str): End row key.
             columns (tuple[str]|list[str]): Columns to fetch.
+            batch (int): The maximum number of cells to return for each iteration.
+                Do not use this except you have super wide rows, e.g., 250 columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            batch_size (int): Batch size.
+            filter (str): Filter.
+            caching (int): REST scanner caching.
 
         Returns:
             str: A scanner URL which can be then used to iterate the table rows.
@@ -509,6 +514,20 @@ class Client(object):
 
         """
         scanner = protobuf_schema.Scanner()
+        #
+        # message Scanner {
+        #   optional bytes startRow = 1;
+        #   optional bytes endRow = 2;
+        #   repeated bytes columns = 3;
+        #   optional int32 batch = 4;
+        #   optional int64 startTime = 5;
+        #   optional int64 endTime = 6;
+        #   optional int32 maxVersions = 7;
+        #   optional string filter = 8;
+        #   optional int32 caching = 9;     // specifies REST scanner caching
+        #   repeated string labels = 10;
+        #   optional bool cacheBlocks = 11; // server side block caching hint
+        # }
         if start_row is not None:
             scanner.startRow = start_row.encode()
         if end_row is not None:
@@ -518,12 +537,16 @@ class Client(object):
                 column.encode()
                 for column in columns
             ])
+        if batch is not None:
+            scanner.batch = batch
         if start_time is not None:
             scanner.startTime = start_time
         if end_time is not None:
             scanner.endTime = end_time
-        if batch_size is not None:
-            scanner.batch = batch_size
+        if filter is not None:
+            scanner.filter = filter
+        if caching is not None:
+            scanner.caching = caching
 
         response = self._session.post(
             url='/'.join((self._base_url, table, 'scanner')),
@@ -563,12 +586,13 @@ class Client(object):
         else:
             raise RESTError(code, response.text)
 
-    def iter_scanner(self, scanner_url):
+    def iter_scanner(self, scanner_url, num_rows=None):
         """Iterate a scanner.
 
         Args:
             scanner_url (str): The scanner URL which returned from "create_scanner".
                 If the url is None, the method will return None.
+            num_rows (int): Max number of rows will be returned.
 
         Returns:
             list[Row]: List of row.
@@ -583,6 +607,8 @@ class Client(object):
         """
         if scanner_url is None:
             return None
+        if num_rows is not None:
+            scanner_url = scanner_url + '?n=' + str(num_rows)
         response = self._session.get(
             url=scanner_url,
             headers={

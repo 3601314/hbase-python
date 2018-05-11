@@ -100,7 +100,7 @@ class Namespace(object):
     def table(self,
               name,
               write_batch_size=500,
-              read_batch_size=100,
+              read_batch_size=500,
               create_if_not_exists=True):
         """Get a table object.
         Note that if the table is automatically created, the default column family is "cf".
