@@ -12,7 +12,7 @@ if __name__ == '__main__':
             'hbase',
             'hbase.protobuf_schema'
         ],
-        version='0.3',
+        version='0.4',
         keywords=('hbase', 'hbase-client', 'hadoop'),
         description='User friendly HBase client for Python 3.',
         long_description=long_description,
