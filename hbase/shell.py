@@ -7,9 +7,9 @@
 
 import argparse
 import shlex
+import time
 
 import hbase
-import time
 
 
 class Shell(object):
@@ -94,7 +94,7 @@ class Shell(object):
             self._tbl = None
             return
 
-        self._ns = self._conn.namespace(args.name, False)
+        self._ns = self._conn.namespace(args.name, create_if_not_exists=False)
 
     def _get(self, args):
         parser_name = 'get'
@@ -108,7 +108,7 @@ class Shell(object):
 
         if self._ns is None:
             raise RuntimeError('No namespace selected. Please use "use [namespace]".')
-        tbl = self._ns.table(args.table, False)
+        tbl = self._ns.table(args.table, create_if_not_exists=False)
         row = tbl.get(args.key) if args.key else tbl.get_one(not args.full)
         print(row)
 
@@ -122,7 +122,7 @@ class Shell(object):
 
         if self._ns is None:
             raise RuntimeError('No namespace selected. Please use "use [namespace]".')
-        tbl = self._ns.table(args.table, False)
+        tbl = self._ns.table(args.table, create_if_not_exists=False)
         t = time.time()
         count = tbl.count(
             verbose=lambda c, r: print('%d: %s' % (c, r.key))

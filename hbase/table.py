@@ -205,8 +205,8 @@ class Table(object):
                     end_row=end_row,
                     start_time=start_time,
                     end_time=end_time,
-                    batch_size=1000,
-                    caching=10000,
+                    batch_size=500,
+                    caching=1000,
                     filter_=filters.KeyOnlyFilter()
             ):
                 count += 1
@@ -216,8 +216,8 @@ class Table(object):
                     end_row=end_row,
                     start_time=start_time,
                     end_time=end_time,
-                    batch_size=1000,
-                    caching=10000,
+                    batch_size=500,
+                    caching=1000,
                     filter_=filters.KeyOnlyFilter()
             ):
                 count += 1
