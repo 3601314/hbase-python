@@ -17,9 +17,9 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='CellMessage.proto',
-  package='org.apache.hadoop.hbase.rest.protobuf.generated',
+  package='org.apache.hadoop.hbase_rest.rest.protobuf.generated',
   syntax='proto2',
-  serialized_pb=_b('\n\x11\x43\x65llMessage.proto\x12/org.apache.hadoop.hbase.rest.protobuf.generated\"D\n\x04\x43\x65ll\x12\x0b\n\x03row\x18\x01 \x01(\x0c\x12\x0e\n\x06\x63olumn\x18\x02 \x01(\x0c\x12\x11\n\ttimestamp\x18\x03 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\x0c')
+  serialized_pb=_b('\n\x11\x43\x65llMessage.proto\x12/org.apache.hadoop.hbase_rest.rest.protobuf.generated\"D\n\x04\x43\x65ll\x12\x0b\n\x03row\x18\x01 \x01(\x0c\x12\x0e\n\x06\x63olumn\x18\x02 \x01(\x0c\x12\x11\n\ttimestamp\x18\x03 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\x0c')
 )
 
 
@@ -27,34 +27,34 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _CELL = _descriptor.Descriptor(
   name='Cell',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Cell',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='row', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Cell.row', index=0,
+      name='row', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell.row', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='column', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Cell.column', index=1,
+      name='column', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell.column', index=1,
       number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='timestamp', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Cell.timestamp', index=2,
+      name='timestamp', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell.timestamp', index=2,
       number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='data', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Cell.data', index=3,
+      name='data', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell.data', index=3,
       number=4, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
@@ -82,7 +82,7 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 Cell = _reflection.GeneratedProtocolMessageType('Cell', (_message.Message,), dict(
   DESCRIPTOR = _CELL,
   __module__ = 'CellMessage_pb2'
-  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.Cell)
+  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell)
   ))
 _sym_db.RegisterMessage(Cell)
 

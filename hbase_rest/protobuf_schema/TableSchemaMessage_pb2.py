@@ -12,13 +12,13 @@ from google.protobuf import symbol_database as _symbol_database
 
 _sym_db = _symbol_database.Default()
 
-from hbase.protobuf_schema import ColumnSchemaMessage_pb2 as ColumnSchemaMessage__pb2
+from hbase_rest.protobuf_schema import ColumnSchemaMessage_pb2 as ColumnSchemaMessage__pb2
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='TableSchemaMessage.proto',
-  package='org.apache.hadoop.hbase.rest.protobuf.generated',
+  package='org.apache.hadoop.hbase_rest.rest.protobuf.generated',
   syntax='proto2',
-  serialized_pb=_b('\n\x18TableSchemaMessage.proto\x12/org.apache.hadoop.hbase.rest.protobuf.generated\x1a\x19\x43olumnSchemaMessage.proto\"\x90\x02\n\x0bTableSchema\x12\x0c\n\x04name\x18\x01 \x01(\t\x12U\n\x05\x61ttrs\x18\x02 \x03(\x0b\x32\x46.org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.Attribute\x12N\n\x07\x63olumns\x18\x03 \x03(\x0b\x32=.org.apache.hadoop.hbase.rest.protobuf.generated.ColumnSchema\x12\x10\n\x08inMemory\x18\x04 \x01(\x08\x12\x10\n\x08readOnly\x18\x05 \x01(\x08\x1a(\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x05value\x18\x02 \x02(\t')
+  serialized_pb=_b('\n\x18TableSchemaMessage.proto\x12/org.apache.hadoop.hbase_rest.rest.protobuf.generated\x1a\x19\x43olumnSchemaMessage.proto\"\x90\x02\n\x0bTableSchema\x12\x0c\n\x04name\x18\x01 \x01(\t\x12U\n\x05\x61ttrs\x18\x02 \x03(\x0b\x32\x46.org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.Attribute\x12N\n\x07\x63olumns\x18\x03 \x03(\x0b\x32=.org.apache.hadoop.hbase_rest.rest.protobuf.generated.ColumnSchema\x12\x10\n\x08inMemory\x18\x04 \x01(\x08\x12\x10\n\x08readOnly\x18\x05 \x01(\x08\x1a(\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x05value\x18\x02 \x02(\t')
   ,
   dependencies=[ColumnSchemaMessage__pb2.DESCRIPTOR,])
 
@@ -27,20 +27,20 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _TABLESCHEMA_ATTRIBUTE = _descriptor.Descriptor(
   name='Attribute',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.Attribute',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.Attribute',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.Attribute.name', index=0,
+      name='name', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.Attribute.name', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.Attribute.value', index=1,
+      name='value', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.Attribute.value', index=1,
       number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -64,41 +64,41 @@ _TABLESCHEMA_ATTRIBUTE = _descriptor.Descriptor(
 
 _TABLESCHEMA = _descriptor.Descriptor(
   name='TableSchema',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.name', index=0,
+      name='name', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='attrs', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.attrs', index=1,
+      name='attrs', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.attrs', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='columns', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.columns', index=2,
+      name='columns', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.columns', index=2,
       number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='inMemory', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.inMemory', index=3,
+      name='inMemory', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.inMemory', index=3,
       number=4, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='readOnly', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.readOnly', index=4,
+      name='readOnly', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.readOnly', index=4,
       number=5, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
@@ -131,12 +131,12 @@ TableSchema = _reflection.GeneratedProtocolMessageType('TableSchema', (_message.
   Attribute = _reflection.GeneratedProtocolMessageType('Attribute', (_message.Message,), dict(
     DESCRIPTOR = _TABLESCHEMA_ATTRIBUTE,
     __module__ = 'TableSchemaMessage_pb2'
-    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema.Attribute)
+    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema.Attribute)
     ))
   ,
   DESCRIPTOR = _TABLESCHEMA,
   __module__ = 'TableSchemaMessage_pb2'
-  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.TableSchema)
+  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableSchema)
   ))
 _sym_db.RegisterMessage(TableSchema)
 _sym_db.RegisterMessage(TableSchema.Attribute)

@@ -8,7 +8,7 @@
 import io
 import json
 
-from hbase import rest
+from . import rest
 
 
 class StreamWriter(object):
@@ -21,7 +21,7 @@ class StreamWriter(object):
         """Stream writer.
 
         Args:
-            table (hbase.table.Table): Table object.
+            table (hbase_rest.table.Table): Table object.
             filename (str): Filename(identifier) in the table.
             column (str): Column to store the data.
             chunk_size (int): Chunk size.
@@ -114,7 +114,7 @@ class StreamReader(object):
         """Stream reader.
 
         Args:
-            table (hbase.table.Table): Table object.
+            table (hbase_rest.table.Table): Table object.
             filename (str): Filename(identifier) to read from.
             column (str): Column that stores the data.
 

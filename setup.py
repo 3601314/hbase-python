@@ -9,8 +9,8 @@ if __name__ == '__main__':
     setup(
         name='hbase-python',
         packages=[
-            'hbase',
-            'hbase.protobuf_schema'
+            'hbase_rest',
+            'hbase_rest.protobuf_schema'
         ],
         version='0.4',
         keywords=('hbase', 'hbase-client', 'hadoop'),

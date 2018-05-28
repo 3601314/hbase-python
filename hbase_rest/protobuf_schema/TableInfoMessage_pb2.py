@@ -17,9 +17,9 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='TableInfoMessage.proto',
-  package='org.apache.hadoop.hbase.rest.protobuf.generated',
+  package='org.apache.hadoop.hbase_rest.rest.protobuf.generated',
   syntax='proto2',
-  serialized_pb=_b('\n\x16TableInfoMessage.proto\x12/org.apache.hadoop.hbase.rest.protobuf.generated\"\xc5\x01\n\tTableInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12R\n\x07regions\x18\x02 \x03(\x0b\x32\x41.org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region\x1aV\n\x06Region\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x10\n\x08startKey\x18\x02 \x01(\x0c\x12\x0e\n\x06\x65ndKey\x18\x03 \x01(\x0c\x12\n\n\x02id\x18\x04 \x01(\x03\x12\x10\n\x08location\x18\x05 \x01(\t')
+  serialized_pb=_b('\n\x16TableInfoMessage.proto\x12/org.apache.hadoop.hbase_rest.rest.protobuf.generated\"\xc5\x01\n\tTableInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12R\n\x07regions\x18\x02 \x03(\x0b\x32\x41.org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region\x1aV\n\x06Region\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x10\n\x08startKey\x18\x02 \x01(\x0c\x12\x0e\n\x06\x65ndKey\x18\x03 \x01(\x0c\x12\n\n\x02id\x18\x04 \x01(\x03\x12\x10\n\x08location\x18\x05 \x01(\t')
 )
 
 
@@ -27,41 +27,41 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _TABLEINFO_REGION = _descriptor.Descriptor(
   name='Region',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region.name', index=0,
+      name='name', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region.name', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='startKey', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region.startKey', index=1,
+      name='startKey', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region.startKey', index=1,
       number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='endKey', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region.endKey', index=2,
+      name='endKey', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region.endKey', index=2,
       number=3, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='id', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region.id', index=3,
+      name='id', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region.id', index=3,
       number=4, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='location', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region.location', index=4,
+      name='location', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region.location', index=4,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -85,20 +85,20 @@ _TABLEINFO_REGION = _descriptor.Descriptor(
 
 _TABLEINFO = _descriptor.Descriptor(
   name='TableInfo',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.name', index=0,
+      name='name', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.name', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='regions', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.regions', index=1,
+      name='regions', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.regions', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -130,12 +130,12 @@ TableInfo = _reflection.GeneratedProtocolMessageType('TableInfo', (_message.Mess
   Region = _reflection.GeneratedProtocolMessageType('Region', (_message.Message,), dict(
     DESCRIPTOR = _TABLEINFO_REGION,
     __module__ = 'TableInfoMessage_pb2'
-    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo.Region)
+    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo.Region)
     ))
   ,
   DESCRIPTOR = _TABLEINFO,
   __module__ = 'TableInfoMessage_pb2'
-  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.TableInfo)
+  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.TableInfo)
   ))
 _sym_db.RegisterMessage(TableInfo)
 _sym_db.RegisterMessage(TableInfo.Region)

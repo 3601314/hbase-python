@@ -9,7 +9,7 @@ import argparse
 import shlex
 import time
 
-import hbase
+import hbase_rest
 
 
 class Shell(object):
@@ -22,11 +22,11 @@ class Shell(object):
 
         self._parsers = dict()
         self._conn = None
-        self._conn = hbase.ConnectionPool(self._host, self._port).connect()
+        self._conn = hbase_rest.ConnectionPool(self._host, self._port).connect()
         self._ns = None
 
     def __enter__(self):
-        self._conn = hbase.ConnectionPool(self._host, self._port).connect()
+        self._conn = hbase_rest.ConnectionPool(self._host, self._port).connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

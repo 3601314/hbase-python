@@ -16,7 +16,7 @@ class Namespace(object):
         """Namespace object.
 
         Args:
-            conn (hbase.connection.Connection): Connection object.
+            conn (hbase_rest.connection.Connection): Connection object.
             name (str): Name of the namespace.
         """
         self._conn = conn
@@ -39,7 +39,7 @@ class Namespace(object):
         """Client object.
 
         Returns:
-            hbase.rest.Client: Client object.
+            hbase_rest.rest.Client: Client object.
 
         """
         return self._client

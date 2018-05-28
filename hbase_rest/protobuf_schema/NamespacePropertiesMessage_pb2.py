@@ -17,9 +17,9 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='NamespacePropertiesMessage.proto',
-  package='org.apache.hadoop.hbase.rest.protobuf.generated',
+  package='org.apache.hadoop.hbase_rest.rest.protobuf.generated',
   syntax='proto2',
-  serialized_pb=_b('\n NamespacePropertiesMessage.proto\x12/org.apache.hadoop.hbase.rest.protobuf.generated\"\x9b\x01\n\x13NamespaceProperties\x12\\\n\x05props\x18\x01 \x03(\x0b\x32M.org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties.Property\x1a&\n\x08Property\x12\x0b\n\x03key\x18\x01 \x02(\t\x12\r\n\x05value\x18\x02 \x02(\t')
+  serialized_pb=_b('\n NamespacePropertiesMessage.proto\x12/org.apache.hadoop.hbase_rest.rest.protobuf.generated\"\x9b\x01\n\x13NamespaceProperties\x12\\\n\x05props\x18\x01 \x03(\x0b\x32M.org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties.Property\x1a&\n\x08Property\x12\x0b\n\x03key\x18\x01 \x02(\t\x12\r\n\x05value\x18\x02 \x02(\t')
 )
 
 
@@ -27,20 +27,20 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _NAMESPACEPROPERTIES_PROPERTY = _descriptor.Descriptor(
   name='Property',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties.Property',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties.Property',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties.Property.key', index=0,
+      name='key', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties.Property.key', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties.Property.value', index=1,
+      name='value', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties.Property.value', index=1,
       number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -64,13 +64,13 @@ _NAMESPACEPROPERTIES_PROPERTY = _descriptor.Descriptor(
 
 _NAMESPACEPROPERTIES = _descriptor.Descriptor(
   name='NamespaceProperties',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='props', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties.props', index=0,
+      name='props', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties.props', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -102,12 +102,12 @@ NamespaceProperties = _reflection.GeneratedProtocolMessageType('NamespacePropert
   Property = _reflection.GeneratedProtocolMessageType('Property', (_message.Message,), dict(
     DESCRIPTOR = _NAMESPACEPROPERTIES_PROPERTY,
     __module__ = 'NamespacePropertiesMessage_pb2'
-    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties.Property)
+    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties.Property)
     ))
   ,
   DESCRIPTOR = _NAMESPACEPROPERTIES,
   __module__ = 'NamespacePropertiesMessage_pb2'
-  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.NamespaceProperties)
+  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.NamespaceProperties)
   ))
 _sym_db.RegisterMessage(NamespaceProperties)
 _sym_db.RegisterMessage(NamespaceProperties.Property)

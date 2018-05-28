@@ -12,13 +12,13 @@ from google.protobuf import symbol_database as _symbol_database
 
 _sym_db = _symbol_database.Default()
 
-from hbase.protobuf_schema import CellMessage_pb2 as CellMessage__pb2
+from hbase_rest.protobuf_schema import CellMessage_pb2 as CellMessage__pb2
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='CellSetMessage.proto',
-  package='org.apache.hadoop.hbase.rest.protobuf.generated',
+  package='org.apache.hadoop.hbase_rest.rest.protobuf.generated',
   syntax='proto2',
-  serialized_pb=_b('\n\x14\x43\x65llSetMessage.proto\x12/org.apache.hadoop.hbase.rest.protobuf.generated\x1a\x11\x43\x65llMessage.proto\"\xb0\x01\n\x07\x43\x65llSet\x12J\n\x04rows\x18\x01 \x03(\x0b\x32<.org.apache.hadoop.hbase.rest.protobuf.generated.CellSet.Row\x1aY\n\x03Row\x12\x0b\n\x03key\x18\x01 \x02(\x0c\x12\x45\n\x06values\x18\x02 \x03(\x0b\x32\x35.org.apache.hadoop.hbase.rest.protobuf.generated.Cell')
+  serialized_pb=_b('\n\x14\x43\x65llSetMessage.proto\x12/org.apache.hadoop.hbase_rest.rest.protobuf.generated\x1a\x11\x43\x65llMessage.proto\"\xb0\x01\n\x07\x43\x65llSet\x12J\n\x04rows\x18\x01 \x03(\x0b\x32<.org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet.Row\x1aY\n\x03Row\x12\x0b\n\x03key\x18\x01 \x02(\x0c\x12\x45\n\x06values\x18\x02 \x03(\x0b\x32\x35.org.apache.hadoop.hbase_rest.rest.protobuf.generated.Cell')
   ,
   dependencies=[CellMessage__pb2.DESCRIPTOR,])
 
@@ -27,20 +27,20 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _CELLSET_ROW = _descriptor.Descriptor(
   name='Row',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.CellSet.Row',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet.Row',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.CellSet.Row.key', index=0,
+      name='key', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet.Row.key', index=0,
       number=1, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='values', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.CellSet.Row.values', index=1,
+      name='values', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet.Row.values', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -64,13 +64,13 @@ _CELLSET_ROW = _descriptor.Descriptor(
 
 _CELLSET = _descriptor.Descriptor(
   name='CellSet',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.CellSet',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='rows', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.CellSet.rows', index=0,
+      name='rows', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet.rows', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -103,12 +103,12 @@ CellSet = _reflection.GeneratedProtocolMessageType('CellSet', (_message.Message,
   Row = _reflection.GeneratedProtocolMessageType('Row', (_message.Message,), dict(
     DESCRIPTOR = _CELLSET_ROW,
     __module__ = 'CellSetMessage_pb2'
-    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.CellSet.Row)
+    # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet.Row)
     ))
   ,
   DESCRIPTOR = _CELLSET,
   __module__ = 'CellSetMessage_pb2'
-  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.CellSet)
+  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.CellSet)
   ))
 _sym_db.RegisterMessage(CellSet)
 _sym_db.RegisterMessage(CellSet.Row)

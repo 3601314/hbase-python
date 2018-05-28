@@ -17,9 +17,9 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='NamespacesMessage.proto',
-  package='org.apache.hadoop.hbase.rest.protobuf.generated',
+  package='org.apache.hadoop.hbase_rest.rest.protobuf.generated',
   syntax='proto2',
-  serialized_pb=_b('\n\x17NamespacesMessage.proto\x12/org.apache.hadoop.hbase.rest.protobuf.generated\"\x1f\n\nNamespaces\x12\x11\n\tnamespace\x18\x01 \x03(\t')
+  serialized_pb=_b('\n\x17NamespacesMessage.proto\x12/org.apache.hadoop.hbase_rest.rest.protobuf.generated\"\x1f\n\nNamespaces\x12\x11\n\tnamespace\x18\x01 \x03(\t')
 )
 
 
@@ -27,13 +27,13 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _NAMESPACES = _descriptor.Descriptor(
   name='Namespaces',
-  full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Namespaces',
+  full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Namespaces',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='namespace', full_name='org.apache.hadoop.hbase.rest.protobuf.generated.Namespaces.namespace', index=0,
+      name='namespace', full_name='org.apache.hadoop.hbase_rest.rest.protobuf.generated.Namespaces.namespace', index=0,
       number=1, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -61,7 +61,7 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 Namespaces = _reflection.GeneratedProtocolMessageType('Namespaces', (_message.Message,), dict(
   DESCRIPTOR = _NAMESPACES,
   __module__ = 'NamespacesMessage_pb2'
-  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase.rest.protobuf.generated.Namespaces)
+  # @@protoc_insertion_point(class_scope:org.apache.hadoop.hbase_rest.rest.protobuf.generated.Namespaces)
   ))
 _sym_db.RegisterMessage(Namespaces)
 

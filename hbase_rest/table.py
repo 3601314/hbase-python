@@ -8,9 +8,9 @@
 import os
 from collections import deque
 
-from hbase import rest
-from hbase import stream_io
-from hbase import filters
+from . import rest
+from . import stream_io
+from . import filters
 
 
 class Table(object):
@@ -23,7 +23,7 @@ class Table(object):
         """Table object.
 
         Args:
-            namespace (hbase.namespace.Namespace): Namespace object.
+            namespace (hbase_rest.namespace.Namespace): Namespace object.
             name (str): Table name.
             write_batch_size (int): Batch size for batch_put().
             read_batch_size (int): Batch size for scan().
@@ -141,7 +141,7 @@ class Table(object):
                 Do not use this except you have super wide rows, e.g., 250 columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            filter_ (hbase.filters.Filter): Filter.
+            filter_ (hbase_rest.filters.Filter): Filter.
             caching (int): REST scanner caching.
             batch_size (int): Max number of rows in each REST request.
                 None means use the table's read_batch_size.
@@ -187,7 +187,7 @@ class Table(object):
             end_row (str): End row key.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            verbose ((int, hbase.rest.Row) -> T): Callback to notify the counting progress.
+            verbose ((int, hbase_rest.rest.Row) -> T): Callback to notify the counting progress.
             verbose_interval (int): Interval counts between verbose calls.
 
         Returns:
@@ -229,7 +229,7 @@ class Table(object):
         """Put one row into the table.
 
         Args:
-            row (hbase.rest.Row): Row object.
+            row (hbase_rest.rest.Row): Row object.
 
         Returns:
             True: Success.
@@ -245,7 +245,7 @@ class Table(object):
         """Put multiple rows to table.
 
         Args:
-            rows (list[hbase.rest.Row]):List of rows.
+            rows (list[hbase_rest.rest.Row]):List of rows.
 
         Returns:
             True: Success.
@@ -262,7 +262,7 @@ class Table(object):
         The actual put operation will not perform immediately, and the row will be put into a buffer.
 
         Args:
-            row (hbase.rest.Row): Row to put.
+            row (hbase_rest.rest.Row): Row to put.
 
         Returns:
             True: Success.
@@ -295,7 +295,7 @@ class Table(object):
         If the passed value is None(or b''), the check is for the lack of column (ie: non-existance)
 
         Args:
-            row (hbase.rest.Row): Row to put.
+            row (hbase_rest.rest.Row): Row to put.
             check_column (str): Column to check.
             check_value (bytes): Valur to check.
 
@@ -490,7 +490,7 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           hbase.rest.Row: Row object.
+           hbase_rest.rest.Row: Row object.
            None: If all rows have been iterated.
 
         Raises:
@@ -512,7 +512,7 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           hbase.rest.Row: Row object.
+           hbase_rest.rest.Row: Row object.
 
         Raises:
             RESTError: REST server returns other errors.

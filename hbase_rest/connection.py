@@ -7,7 +7,7 @@
 
 import collections
 
-from hbase import rest
+from . import rest
 from .namespace import Namespace
 
 DEFAULT_HOST = 'localhost'

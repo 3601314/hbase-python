@@ -7,8 +7,8 @@
 
 import requests
 
-from hbase import protobuf_schema
-from hbase import filters
+from hbase_rest import protobuf_schema
+from hbase_rest import filters
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8080
@@ -505,7 +505,7 @@ class Client(object):
                 Do not use this except you have super wide rows, e.g., 250 columns.
             start_time (int): Start timestamp.
             end_time (int): End timestamp.
-            filter_ (hbase.filters.Filter): Filter.
+            filter_ (hbase_rest.filters.Filter): Filter.
             caching (int): REST scanner caching.
 
         Returns:
