@@ -140,7 +140,7 @@ _DELEGATIONTOKEN = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='services', full_name='DelegationToken.services', index=3,
+      name='service', full_name='DelegationToken.service', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
