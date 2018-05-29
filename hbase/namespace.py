@@ -15,7 +15,7 @@ class Namespace(object):
         """Namespace object.
 
         Args:
-            conn (hbase_client.connection.Connection): Connection object.
+            conn (hbase.connection.Connection): Connection object.
             name (str): Name of the namespace.
         """
         self._conn = conn
@@ -110,7 +110,6 @@ class Namespace(object):
             Table: Table object.
 
         Raises:
-            RESTError: REST server returns other errors.
             RuntimeError: Table does not exist or failed to create a one.
 
         """
@@ -125,9 +124,6 @@ class Namespace(object):
         Returns:
             True: Success.
             False: The table dose not exist.
-
-        Raises:
-            RESTError: REST server returns other errors.
 
         """
         full_name = self._prefix + name

@@ -21,7 +21,7 @@ class StreamWriter(object):
         """Stream writer.
 
         Args:
-            table (hbase_client.table.Table): Table object.
+            table (hbase.table.Table): Table object.
             filename (str): Filename(identifier) in the table.
             column (str): Column to store the data.
             chunk_size (int): Chunk size.
@@ -113,7 +113,7 @@ class StreamReader(object):
         """Stream reader.
 
         Args:
-            table (hbase_client.table.Table): Table object.
+            table (hbase.table.Table): Table object.
             filename (str): Filename(identifier) to read from.
             column (str): Column that stores the data.
 

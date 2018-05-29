@@ -23,7 +23,7 @@ class Table(object):
         """Table object.
 
         Args:
-            namespace (hbase_client.namespace.Namespace): Namespace object.
+            namespace (hbase.namespace.Namespace): Namespace object.
             name (str): Table name.
             write_batch_size (int): Batch size for batch_put().
             read_batch_size (int): Batch size for scan().
@@ -127,8 +127,8 @@ class Table(object):
             start_row (str): Start rwo key.
             end_row (str): End row key.
             columns (tuple[str]|list[str]): Columns.
-            filter_ (hbase_client.filters.Filter): Filter.
-            batch_size (int): Max number of rows in each REST request.
+            filter_ (hbase.filters.Filter): Filter.
+            batch_size (int): Max number of rows in each request.
                 None means use the table's read_batch_size.
 
         Returns:
@@ -158,7 +158,7 @@ class Table(object):
         Args:
             start_row (str): Start rwo key.
             end_row (str): End row key.
-            verbose ((int, hbase_client.client.Row) -> T): Callback to notify the counting progress.
+            verbose ((int, hbase.client.Row) -> T): Callback to notify the counting progress.
             verbose_interval (int): Interval counts between verbose calls.
 
         Returns:
@@ -193,7 +193,7 @@ class Table(object):
         """Put one row into the table.
 
         Args:
-            row (hbase_client.client.Row): Row object.
+            row (hbase.client.Row): Row object.
 
         """
         self._client.put(self._full_name, row)
@@ -208,7 +208,7 @@ class Table(object):
         If the passed value is None(or b''), the check is for the lack of column (ie: non-existance)
 
         Args:
-            row (hbase_client.client.Row): Row to put.
+            row (hbase.client.Row): Row to put.
             check_column (str): Column to check.
             check_value (bytes): Valur to check.
 
@@ -243,9 +243,6 @@ class Table(object):
         Returns:
             stream_io.StreamWriter: The stream writer if success.
 
-        Raises:
-            RESTError: REST server returns other errors.
-
         """
         return stream_io.StreamWriter(self, filename, column, chunk_size)
 
@@ -258,9 +255,6 @@ class Table(object):
 
         Returns:
             stream_io.StreamReader: The stream reader if success.
-
-        Raises:
-            RESTError: REST server returns other errors.
 
         """
         return stream_io.StreamReader(self, filename, column)
@@ -278,9 +272,6 @@ class Table(object):
             column (str): Column that the writer store the data.
             chunk_size (int): Chunk size.
 
-        Raises:
-            RESTError: REST server returns other errors.
-
         """
         with self.stream_writer(filename, column, chunk_size) as f:
             f.write(data)
@@ -294,9 +285,6 @@ class Table(object):
 
         Returns:
             bytes: All bytes of the file if success.
-
-        Raises:
-            RESTError: REST server returns other errors.
 
         """
         with self.stream_reader(filename, column) as f:
@@ -317,7 +305,6 @@ class Table(object):
 
         Raises:
             IOError: Failed to open the file.
-            RESTError: REST server returns other errors.
 
         """
         if filename is None:
@@ -345,7 +332,6 @@ class Table(object):
 
         Raises:
             IOError: Failed to open the file.
-            RESTError: REST server returns other errors.
 
         """
         with self.stream_reader(filename, column) as reader:
@@ -386,11 +372,8 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           hbase_client.client.Row: Row object.
+           hbase.client.Row: Row object.
            None: If all rows have been iterated.
-
-        Raises:
-            RESTError: REST server returns other errors.
 
         """
         if len(self._buffer) == 0:
@@ -408,10 +391,9 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           hbase_client.client.Row: Row object.
+           hbase.client.Row: Row object.
 
         Raises:
-            RESTError: REST server returns other errors.
             StopIteration: If all rows have been iterated.
 
         """
