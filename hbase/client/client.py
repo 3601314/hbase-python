@@ -8,11 +8,11 @@
 import collections
 import time
 
-from hbase_client import exceptions
-from hbase_client import protobuf
-from hbase_client import services
-from hbase_client.client import filters
-from hbase_client.client import region as _region
+from hbase import exceptions
+from hbase import protobuf
+from hbase import services
+from hbase.client import filters
+from hbase.client import region as _region
 
 DEFAULT_FAMILY = 'cf'
 

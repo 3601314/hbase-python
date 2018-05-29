@@ -5,9 +5,9 @@
 @since: 2018-05-18
 """
 
-from hbase_client import exceptions
-from hbase_client.services import request
-from hbase_client.services import zookeeper
+from hbase import exceptions
+from hbase.services import request
+from hbase.services import zookeeper
 
 
 class Service(object):

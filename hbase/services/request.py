@@ -11,8 +11,8 @@ import struct
 import sys
 import threading
 
-from hbase_client import exceptions
-from hbase_client import protobuf as pb
+from hbase import exceptions
+from hbase import protobuf as pb
 
 
 def encode_varint(value):

@@ -8,9 +8,9 @@
 import io
 import struct
 
-from hbase_client import protobuf
-from hbase_client import services, exceptions
-from hbase_client.client import rbtree
+from hbase import protobuf
+from hbase import services, exceptions
+from hbase.client import rbtree
 
 
 class Region(object):

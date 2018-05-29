@@ -5,7 +5,7 @@
 @since: 2018-05-25
 """
 
-from hbase_client import protobuf
+from hbase import protobuf
 
 FILTER_PATH = 'org.apache.hadoop.hbase.filter.'
 COMPARATOR_PATH = 'org.apache.hadoop.hbase.filter.'

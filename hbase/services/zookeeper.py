@@ -13,8 +13,8 @@ from kazoo.client import KazooClient
 from kazoo.exceptions import NoNodeError
 from kazoo.handlers.threading import KazooTimeoutError
 
-from hbase_client import exceptions
-from hbase_client import protobuf as pb
+from hbase import exceptions
+from hbase import protobuf as pb
 
 PATH_MASTER = '/hbase/master'
 PATH_META_REGION = '/hbase/meta-region-server'
