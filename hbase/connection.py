@@ -9,6 +9,7 @@ import collections
 
 from . import client
 from .namespace import Namespace
+from .exceptions import *
 
 
 class Connection(object):
@@ -22,9 +23,9 @@ class Connection(object):
                 e.g., '127.0.0.1:2181,127.0.0.1:2182,[::1]:2183'
 
         Raises:
-            exceptions.TransportError: Failed to connect.
-            exceptions.NoSuchZookeeperNodeError: The required node not found.
-            exceptions.ZookeeperProtocolError: Invalid response.
+            TransportError
+            ZookeeperProtocolError
+            NoSuchZookeeperNodeError
 
         """
         self._on_close = on_close
@@ -65,20 +66,6 @@ class Connection(object):
         """
         return self._client.namespaces()
 
-    def create_namespace(self, name, props=None):
-        """Create a namespace.
-
-        Args:
-            name (str): Name of the namespace.
-            props (dict[str, str]): Custom properties.
-
-        Returns:
-            True: Success.
-            False: The namespace exists.
-
-        """
-        return self._client.create_namespace(name, props)
-
     def namespace(self, name, create_if_not_exists=True):
         """Get a namespace object.
 
@@ -90,17 +77,28 @@ class Connection(object):
             Namespace: Namespace object.
 
         Raises:
-            RuntimeError: Namespace does not exist or failed to create a new one.
+            NamespaceNotFoundError
+            NamespaceExistError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         if name in self._namespaces:
             return self._namespaces[name]
-        if self._client.namespace(name) is None:
+
+        try:
+            self._client.namespace(name)
+        except NamespaceNotFoundError as e:
             if create_if_not_exists:
-                if not self._client.create_namespace(name):
-                    raise RuntimeError('Failed to create namespace %s.' % name)
+                self._client.create_namespace(name)
             else:
-                raise RuntimeError('Namespace %s does not exist.' % name)
+                raise e
+
         ns = Namespace(self, name)
         self._namespaces[name] = ns
         return ns
@@ -116,10 +114,37 @@ class Connection(object):
             Namespace: Namespace object.
 
         Raises:
-            RuntimeError: Namespace does not exist or failed to create a new one.
+            NamespaceNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         return self.namespace(name)
+
+    def create_namespace(self, name, props=None):
+        """Create a namespace.
+
+        Args:
+            name (str): Name of the namespace.
+            props (dict[str, str]): Custom properties.
+
+        Raises:
+            NamespaceExistError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
+        """
+        self._client.create_namespace(name, props)
 
 
 class ConnectionPool(object):

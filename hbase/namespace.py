@@ -7,6 +7,7 @@
 
 from . import client
 from .table import Table
+from .exceptions import *
 
 
 class Namespace(object):
@@ -17,6 +18,7 @@ class Namespace(object):
         Args:
             conn (hbase.connection.Connection): Connection object.
             name (str): Name of the namespace.
+
         """
         self._conn = conn
         self._name = name
@@ -49,20 +51,18 @@ class Namespace(object):
         Returns:
             list[str]: List of table names.
 
+        Raises:
+            NamespaceNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
         """
         return self._client.tables(self._name)
-
-    def create_table(self, name, families=None):
-        """Create a table.
-
-        Args:
-            name (str): Table name.
-            families (list[ColumnFamilyAttributes]|tuple[ColumnFamilyAttributes]):
-                The name and options for each column family.
-
-        """
-        full_name = self._prefix + name
-        self._client.create_table(full_name, families)
 
     def table(self,
               name,
@@ -82,18 +82,30 @@ class Namespace(object):
             Table: Table object.
 
         Raises:
-            RuntimeError: Table does not exist or failed to create a one.
+            TableNotFoundError
+            NamespaceNotFoundError
+            TableExistsError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         full_name = self._prefix + name
         if name in self._tables:
             return self._tables[name]
-        if self._client.table(full_name) is None:
+
+        try:
+            self._client.table(full_name)
+        except TableNotFoundError as e:
             if create_if_not_exists:
-                if not self._client.create_table(full_name):
-                    raise RuntimeError('Failed to create table %s.' % full_name)
+                self._client.create_table(full_name)
             else:
-                raise RuntimeError('Table %s does not exist.' % full_name)
+                raise e
+
         table = Table(self, name, write_batch_size, read_batch_size)
         self._tables[name] = table
         return table
@@ -110,10 +122,40 @@ class Namespace(object):
             Table: Table object.
 
         Raises:
-            RuntimeError: Table does not exist or failed to create a one.
+            TableNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         return self.table(name)
+
+    def create_table(self, name, families=None):
+        """Create a table.
+
+        Args:
+            name (str): Table name.
+            families (list[ColumnFamilyAttributes]|tuple[ColumnFamilyAttributes]):
+                The name and options for each column family.
+
+        Raises:
+            NamespaceNotFoundError
+            TableExistsError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
+        """
+        full_name = self._prefix + name
+        self._client.create_table(full_name, families)
 
     def delete_table(self, name):
         """Delete a table.
@@ -121,10 +163,16 @@ class Namespace(object):
         Args:
             name (str): Table name.
 
-        Returns:
-            True: Success.
-            False: The table dose not exist.
+        Raises:
+            TableNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         full_name = self._prefix + name
-        return self._client.delete_table(full_name)
+        self._client.delete_table(full_name)

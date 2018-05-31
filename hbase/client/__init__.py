@@ -9,4 +9,3 @@ from hbase.client.client import Client
 from hbase.client.client import Row
 from hbase.client.client import ColumnFamilyAttributes
 from hbase.client.client import Scanner
-from hbase.client.filters import *

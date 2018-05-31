@@ -98,6 +98,15 @@ class Table(object):
             client.Row: The row object.
             None: The row does not exist.
 
+        Raises:
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
         """
         return self._client.get(self._full_name, key, columns)
 
@@ -110,6 +119,15 @@ class Table(object):
         Returns:
             Row: The first row in the table.
             None: The row does not exist.
+
+        Raises:
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         filter_ = filters.KeyOnlyFilter() if key_only else None
@@ -133,9 +151,6 @@ class Table(object):
 
         Returns:
             Cursor: Cursor object if success.
-
-        Raises:
-            RuntimeError: The table does not exist.
 
         """
         scanner = self._client.create_scanner(
@@ -165,7 +180,13 @@ class Table(object):
             int: The number of rows.
 
         Raises:
-            RuntimeError: The table does not exist.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         count = 0
@@ -195,6 +216,15 @@ class Table(object):
         Args:
             row (hbase.client.Row): Row object.
 
+        Raises:
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
         """
         self._client.put(self._full_name, row)
 
@@ -212,6 +242,15 @@ class Table(object):
             check_column (str): Column to check.
             check_value (bytes): Valur to check.
 
+        Raises:
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
         """
         return self._client.check_and_put(
             self._full_name,
@@ -225,6 +264,15 @@ class Table(object):
 
         Args:
             key (str): Row key.
+
+        Raises:
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         self._client.delete(self._full_name, key)
@@ -375,6 +423,15 @@ class Cursor(object):
            hbase.client.Row: Row object.
            None: If all rows have been iterated.
 
+        Raises:
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
         """
         if len(self._buffer) == 0:
             batch = self._client.iter_scanner(self.scanner)
@@ -395,6 +452,14 @@ class Cursor(object):
 
         Raises:
             StopIteration: If all rows have been iterated.
+
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         if len(self._buffer) == 0:

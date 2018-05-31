@@ -50,9 +50,46 @@ class RegionOpeningError(RegionError):
     pass
 
 
-class MasterError(RequestError):
+class ServerIOError(RequestError):
+    """Server side IO error.
+
+    This error can be caused by:
+        java.io.IOException
+    """
     pass
 
 
-class ClientError(RequestError):
+class NamespaceNotFoundError(RequestError):
+    """The required namespace doesn't exist.
+
+    This error can be caused by:
+        org.apache.hadoop.hbase.NamespaceNotFoundException
+    """
+    pass
+
+
+class NamespaceExistError(RequestError):
+    """The namespace has already exist.
+
+    This error can be caused by:
+        org.apache.hadoop.hbase.NamespaceExistException
+    """
+    pass
+
+
+class TableNotFoundError(RequestError):
+    """The required table doesn't exist.
+
+    This error can be caused by:
+        org.apache.hadoop.hbase.TableNotFoundException
+    """
+    pass
+
+
+class TableExistsError(RequestError):
+    """The table has already exist.
+
+    This error can be caused by:
+        org.apache.hadoop.hbase.TableExistsException
+    """
     pass

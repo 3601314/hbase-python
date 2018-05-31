@@ -8,11 +8,11 @@
 import collections
 import time
 
-from hbase import exceptions
-from hbase import protobuf
-from hbase import services
-from hbase.client import filters
-from hbase.client import region as _region
+from .. import protobuf
+from .. import services
+from . import filters
+from . import region as _region
+from ..exceptions import *
 
 DEFAULT_FAMILY = 'cf'
 
@@ -39,17 +39,26 @@ class Row(dict):
 
 class ColumnFamilyAttributes(dict):
 
-    def __init__(self, name):
-        super(ColumnFamilyAttributes, self).__init__({
-            b'VERSIONS': b'1',
-            b'MIN_VERSIONS': b'0',
-            b'COMPRESSION': b'NONE',
-            b'KEEP_DELETED_CELLS': b'FALSE',
-            b'BLOCKCACHE': b'true',
-            b'BLOCKSIZE': b'65536',
-            b'IN_MEMORY': b'false'
-        })
+    def __init__(self,
+                 name,
+                 versions=b'1',
+                 min_versions=b'0',
+                 compression=b'NONE',
+                 keep_deleted_cells=b'FALSE',
+                 blockcache=b'true',
+                 blocksize=b'65536',
+                 in_memory=b'false'):
+        super(ColumnFamilyAttributes, self).__init__()
+
         self._name = name
+
+        self.versions = versions
+        self.min_versions = min_versions
+        self.compression = compression
+        self.keep_deleted_cells = keep_deleted_cells
+        self.blockcache = blockcache
+        self.blocksize = blocksize
+        self.in_memory = in_memory
 
     @property
     def name(self):
@@ -126,9 +135,9 @@ class Client(object):
                 e.g., '127.0.0.1:2181,127.0.0.1:2182,[::1]:2183'
 
         Raises:
-            exceptions.TransportError: Failed to connect.
-            exceptions.NoSuchZookeeperNodeError: The required node not found.
-            exceptions.ZookeeperProtocolError: Invalid response.
+            TransportError: Failed to connect.
+            NoSuchZookeeperNodeError: The required node not found.
+            ZookeeperProtocolError: Invalid response.
 
         """
         self._zkquorum = zkquorum
@@ -160,11 +169,11 @@ class Client(object):
             list[str]: List of namespace names.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            TransportError: Connection failed.
+            ZookeeperProtocolError: Invalid zookeeper protocol.
+            ServiceProtocolError: Invalid service protocol.
+            NoSuchZookeeperNodeError: Failed to find the zookeeper node.
+            MasterError: Master service request error.
 
         """
         #
@@ -176,10 +185,7 @@ class Client(object):
         # message ListNamespaceDescriptorsResponse {
         #   repeated NamespaceDescriptor namespaceDescriptor = 1;
         # }
-        try:
-            pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        pb_resp = self._master_service.request(pb_req)
         return [
             pb_desc.name.decode()
             for pb_desc in pb_resp.namespaceDescriptor
@@ -195,11 +201,14 @@ class Client(object):
             dict[str, str]: Descriptions in dict, e.g., {'property': 'value'}.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            NamespaceNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -215,8 +224,14 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.NamespaceNotFoundException':
+                raise NamespaceNotFoundError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad namespace name.')
+            else:
+                raise e
         return {
             pb_conf.name: pb_conf.value
             for pb_conf in pb_resp.namespaceDescriptor.configuration
@@ -230,11 +245,14 @@ class Client(object):
             confs (dict[str, str]): Custom properties.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            NamespaceExistError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -265,8 +283,14 @@ class Client(object):
         # }
         try:
             self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.NamespaceExistException':
+                raise NamespaceExistError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad namespace name.')
+            else:
+                raise e
 
     def delete_namespace(self, namespace):
         """Delete a namespace.
@@ -275,11 +299,14 @@ class Client(object):
             namespace (str): Namespace name.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            NamespaceNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -294,8 +321,14 @@ class Client(object):
         # }
         try:
             self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.NamespaceNotFoundException':
+                raise NamespaceNotFoundError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad namespace name.')
+            else:
+                raise e
 
     def tables(self, namespace):
         """List all table of the given namespace.
@@ -307,11 +340,14 @@ class Client(object):
             list[str]: List of table names.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            NamespaceNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -331,8 +367,14 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.NamespaceNotFoundException':
+                raise NamespaceNotFoundError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad namespace name.')
+            else:
+                raise e
         tables = [
             pb_table_name.qualifier.decode()
             for pb_table_name in pb_resp.tableName
@@ -349,11 +391,14 @@ class Client(object):
             dict[str, T]: Description of the table.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            TableNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -393,10 +438,14 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'java.io.IOException':
+                raise ServerIOError('Bad table name.')
+            else:
+                raise e
         if len(pb_resp.table_schema) == 0:
-            return None
+            raise TableNotFoundError()
         pb_schema = pb_resp.table_schema[0]
         return {
             pb_column_family.name.decode(): (
@@ -415,11 +464,15 @@ class Client(object):
                 Column families.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            NamespaceNotFoundError
+            TableExistsError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -459,8 +512,16 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.NamespaceNotFoundException':
+                raise NamespaceNotFoundError()
+            elif err == 'org.apache.hadoop.hbase.TableExistsException':
+                raise TableExistsError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad table name.')
+            else:
+                raise e
         self._wait_for_proc(pb_resp.proc_id, 1)
 
     def enable_table(self, table):
@@ -470,11 +531,14 @@ class Client(object):
             table (str): Table name.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            TableNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -496,8 +560,14 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.TableNotFoundException':
+                raise TableNotFoundError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad table name.')
+            else:
+                raise e
         self._wait_for_proc(pb_resp.proc_id, 1)
 
     def disable_table(self, table):
@@ -507,11 +577,14 @@ class Client(object):
             table (str): Table name.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            TableNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -533,8 +606,14 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.TableNotFoundException':
+                raise TableNotFoundError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad table name.')
+            else:
+                raise e
         self._wait_for_proc(pb_resp.proc_id, 1)
 
     def delete_table(self, table, need_disable=True):
@@ -546,11 +625,14 @@ class Client(object):
                 before perform the delete operation.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            TableNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         if need_disable:
@@ -574,8 +656,14 @@ class Client(object):
         # }
         try:
             pb_resp = self._master_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.MasterError(str(e))
+        except RequestError as e:
+            err = str(e)
+            if err == 'org.apache.hadoop.hbase.TableNotFoundException':
+                raise TableNotFoundError()
+            elif err == 'java.io.IOException':
+                raise ServerIOError('Bad table name.')
+            else:
+                raise e
         self._wait_for_proc(pb_resp.proc_id, 1)
 
     def _wait_for_proc(self, proc_id, sleep):
@@ -592,11 +680,12 @@ class Client(object):
             The response object.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.MasterError: Master service request error.
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         while True:
@@ -622,18 +711,15 @@ class Client(object):
             #   optional bytes result = 4;
             #   optional ForeignExceptionMessage exception = 5;
             # }
-            try:
-                pb_resp = self._master_service.request(pb_req)
-            except exceptions.RequestError as e:
-                raise exceptions.MasterError(str(e))
+            pb_resp = self._master_service.request(pb_req)
             state = pb_resp.state
             if state == 0:
-                raise exceptions.MasterError('Procedure %d not found.' % proc_id)
+                raise RequestError('Procedure %d not found.' % proc_id)
             elif state == 1:
                 sleep = min(sleep * 2, 10)
                 continue
             else:
-                return pb_resp
+                break
 
     def get(self,
             table,
@@ -655,11 +741,13 @@ class Client(object):
             None: The row does not exist.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         region = self._region_manager.get_region(table, key)
@@ -710,7 +798,7 @@ class Client(object):
                 try:
                     family, qualifier = column.split(':')
                 except ValueError or AttributeError:
-                    raise exceptions.RequestError(
+                    raise RequestError(
                         'Invalid column name. {family}:{qualifier} expected, got %s.' % column
                     )
                 qualifier_dict[family.encode()].append(qualifier.encode())
@@ -731,20 +819,13 @@ class Client(object):
         # }
         try:
             pb_resp = region_service.request(pb_req)
-        except exceptions.RegionError:
+        except RegionError:
             # refresh the region information and retry the operation
             region = self._region_manager.get_region(table, key, use_cache=False)
             region_service = self._region_manager.get_service(region)
             pb_req.region.value = region.name.encode()
-            try:
-                pb_resp = region_service.request(pb_req)
-            except exceptions.RegionError as e:
-                # if the new region still doesn't work, it is a fatal error
-                raise e
-            except exceptions.RequestError as e:
-                raise exceptions.ClientError(e)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+            # if the new region still doesn't work, it is a fatal error
+            pb_resp = region_service.request(pb_req)
         return self._cells_to_row(pb_resp.result.cell)
 
     def get_one(self,
@@ -765,14 +846,17 @@ class Client(object):
             None: The row does not exist.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         if key is None:
+            # TODO: Here we should use a randomly generated key.
             key = ''
         return self.get(table, key, columns, filter_, True)
 
@@ -784,11 +868,13 @@ class Client(object):
             row (Row): Row object to insert.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         key = row.key
@@ -884,20 +970,13 @@ class Client(object):
         # }
         try:
             pb_resp = region_service.request(pb_req)
-        except exceptions.RegionError:
+        except RegionError:
             # refresh the region information and retry the operation
             region = self._region_manager.get_region(table, key, use_cache=False)
             region_service = self._region_manager.get_service(region)
             pb_req.region.value = region.name.encode()
-            try:
-                pb_resp = region_service.request(pb_req)
-            except exceptions.RegionError as e:
-                # if the new region still doesn't work, it is a fatal error
-                raise e
-            except exceptions.RequestError as e:
-                raise exceptions.ClientError(e)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+            # if the new region still doesn't work, it is a fatal error
+            pb_resp = region_service.request(pb_req)
         return pb_resp.processed
 
     def check_and_put(self,
@@ -926,11 +1005,13 @@ class Client(object):
                 which are defined in filters.py.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         key = row.key
@@ -963,20 +1044,13 @@ class Client(object):
 
         try:
             pb_resp = region_service.request(pb_req)
-        except exceptions.RegionError:
+        except RegionError:
             # refresh the region information and retry the operation
             region = self._region_manager.get_region(table, key, use_cache=False)
             region_service = self._region_manager.get_service(region)
             pb_req.region.value = region.name.encode()
-            try:
-                pb_resp = region_service.request(pb_req)
-            except exceptions.RegionError as e:
-                # if the new region still doesn't work, it is a fatal error
-                raise e
-            except exceptions.RequestError as e:
-                raise exceptions.ClientError(e)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+            # if the new region still doesn't work, it is a fatal error
+            pb_resp = region_service.request(pb_req)
         return pb_resp.processed
 
     @staticmethod
@@ -1052,11 +1126,13 @@ class Client(object):
             None: There is no more rows.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         #
@@ -1163,11 +1239,13 @@ class Client(object):
             scanner (Scanner): The scanner object.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         if scanner.__client__ != self:
@@ -1208,11 +1286,13 @@ class Client(object):
             The protocol response object.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         print('DEBUG: Create scanner on %s.' % str(region))
@@ -1246,20 +1326,13 @@ class Client(object):
 
         try:
             return region_service.request(pb_req)
-        except exceptions.RegionError:
+        except RegionError:
             # refresh the region information and retry the operation
             region = self._region_manager.get_region(table, start_key, use_cache=False)
             region_service = self._region_manager.get_service(region)
             pb_req.region.value = region.name.encode()
-            try:
-                return region_service.request(pb_req)
-            except exceptions.RegionError as e:
-                # if the new region still doesn't work, it is a fatal error
-                raise e
-            except exceptions.RequestError as e:
-                raise exceptions.ClientError(e)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+            # if the new region still doesn't work, it is a fatal error
+            return region_service.request(pb_req)
 
     @staticmethod
     def _scan_region_scanner(region,
@@ -1278,11 +1351,13 @@ class Client(object):
             The protocol response object.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         pb_req = protobuf.ScanRequest()
@@ -1293,10 +1368,7 @@ class Client(object):
         pb_req.number_of_rows = num_rows
         pb_req.scanner_id = scanner_id
 
-        try:
-            return region_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+        return region_service.request(pb_req)
 
     @staticmethod
     def _close_region_scanner(region,
@@ -1313,11 +1385,13 @@ class Client(object):
             The protocol response object.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         print('DEBUG: Close scanner on %s.' % str(region))
@@ -1329,10 +1403,7 @@ class Client(object):
         pb_req.scanner_id = scanner_id
         pb_req.close_scanner = True
 
-        try:
-            return region_service.request(pb_req)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+        return region_service.request(pb_req)
 
     @staticmethod
     def _cells_to_row(pb_cells):
@@ -1370,11 +1441,13 @@ class Client(object):
             key (str): Row key.
 
         Raises:
-            exceptions.TransportError: Connection failed.
-            exceptions.ZookeeperProtocolError: Invalid zookeeper protocol.
-            exceptions.ServiceProtocolError: Invalid service protocol.
-            exceptions.NoSuchZookeeperNodeError: Failed to find the zookeeper node.
-            exceptions.ClientError: Client service request error.
+            RegionError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
 
         """
         region = self._region_manager.get_region(table, key)
@@ -1398,20 +1471,13 @@ class Client(object):
         # }
         try:
             pb_resp = region_service.request(pb_req)
-        except exceptions.RegionError:
+        except RegionError:
             # refresh the region information and retry the operation
             region = self._region_manager.get_region(table, key, use_cache=False)
             region_service = self._region_manager.get_service(region)
             pb_req.region.value = region.name.encode()
-            try:
-                pb_resp = region_service.request(pb_req)
-            except exceptions.RegionError as e:
-                # if the new region still doesn't work, it is a fatal error
-                raise e
-            except exceptions.RequestError as e:
-                raise exceptions.ClientError(e)
-        except exceptions.RequestError as e:
-            raise exceptions.ClientError(e)
+            # if the new region still doesn't work, it is a fatal error
+            pb_resp = region_service.request(pb_req)
         return pb_resp.processed
 
     @staticmethod
