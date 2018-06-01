@@ -180,7 +180,7 @@ class RegionManager(object):
         """
         meta_key = self._make_meta_key(table, key)
         if use_cache:
-            node = self._tree.find(meta_key)
+            node = self._tree.find(meta_key[:-2])
             if node is None:
                 region = self._region_lookup(meta_key)
                 if region is None:
@@ -192,7 +192,7 @@ class RegionManager(object):
             else:
                 return node.value
         else:
-            self._remove_from_cache(meta_key)
+            self._remove_from_cache(meta_key[:-2])
             region = self._region_lookup(meta_key)
             if region is None:
                 raise exceptions.RequestError(
