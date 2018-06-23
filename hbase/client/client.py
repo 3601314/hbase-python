@@ -725,8 +725,7 @@ class Client(object):
             table,
             key,
             columns=None,
-            filter_=None,
-            closest_row_before=False):
+            filter_=None):
         """Query to get a row object with a row key.
 
         Args:
@@ -734,7 +733,6 @@ class Client(object):
             key (str): Row key.
             columns (tuple[str]|list[str]): Columns to fetch.
             filter_ (filters.Filter): Filter object.
-            closest_row_before (bool): If the row to get doesn't exist, return the closest row before.
 
         Returns:
             Row: The row object.
@@ -811,7 +809,6 @@ class Client(object):
             pb_filter = pb_get.filter
             pb_filter.name = filter_.name
             pb_filter.serialized_filter = filter_.serialize()
-        pb_get.closest_row_before = closest_row_before
 
         #
         # message GetResponse {
@@ -858,7 +855,25 @@ class Client(object):
         if key is None:
             # TODO: Here we should use a randomly generated key.
             key = ''
-        return self.get(table, key, columns, filter_, True)
+        region = self._region_manager.get_region(table, key)
+        region_service = self._region_manager.get_service(region)
+        pb_resp = self._create_region_scanner(
+            region,
+            region_service,
+            table,
+            start_key=key,
+            end_key=None,
+            columns=columns,
+            filter_=filter_,
+            num_rows=1,
+            reversed=True
+        )
+        scanner_id = pb_resp.scanner_id
+        self._close_region_scanner(region, region_service, scanner_id)
+        if len(pb_resp.results) < 1:
+            return None
+        else:
+            return self._cells_to_row(pb_resp.results[0].cell)
 
     def put(self, table, row):
         """Insert a row into a table.
@@ -1268,18 +1283,19 @@ class Client(object):
                                end_key,
                                columns,
                                filter_,
-                               num_rows):
+                               num_rows,
+                               reversed=False):
         """Create a scanner on a region and return the first iteration results.
 
         Args:
             region (_region.Region): The region object.
             region_service (services.RegionService): The region service.
             table (str): Table name.
-            start_key (str): Start key.
-            end_key (str): End key.
-            columns (list[str]|tuple[str]): Name of the columns to query.
+            start_key (str|None): Start key.
+            end_key (str|None): End key.
+            columns (list[str]|tuple[str]|None): Name of the columns to query.
                 This is similar to the projection operation in SQL.
-            filter_ (filters.Filter): The filter object.
+            filter_ (filters.Filter|None): The filter object.
             num_rows (int): Number of rows returned in every iteration.
 
         Returns:
@@ -1303,17 +1319,19 @@ class Client(object):
 
         # start_key and end_key
         pb_scan = pb_req.scan
-        pb_scan.start_row = start_key.encode()
+        if start_key is not None:
+            pb_scan.start_row = start_key.encode()
         if end_key is not None:
             pb_scan.stop_row = end_key.encode()
-        pb_columns = pb_scan.column
 
         # columns
-        for column in columns:
-            family, qualifier = self._split_name(column)
-            pb_column = pb_columns.add()
-            pb_column.family = family
-            pb_column.qualifier = qualifier
+        if columns is not None:
+            pb_columns = pb_scan.column
+            for column in columns:
+                family, qualifier = self._split_name(column)
+                pb_column = pb_columns.add()
+                pb_column.family = family
+                pb_column.qualifier = qualifier
 
         # filter
         if filter_ is not None:
@@ -1323,6 +1341,9 @@ class Client(object):
 
         # number of rows
         pb_req.number_of_rows = num_rows
+
+        # reversed
+        pb_scan.reversed = reversed
 
         try:
             return region_service.request(pb_req)
