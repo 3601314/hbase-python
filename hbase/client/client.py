@@ -1311,7 +1311,7 @@ class Client(object):
             NoSuchZookeeperNodeError
 
         """
-        print('DEBUG: Create scanner on %s.' % str(region))
+        # print('DEBUG: Create scanner on %s.' % str(region))
         pb_req = protobuf.ScanRequest()
 
         pb_req.region.type = 1
@@ -1415,7 +1415,7 @@ class Client(object):
             NoSuchZookeeperNodeError
 
         """
-        print('DEBUG: Close scanner on %s.' % str(region))
+        # print('DEBUG: Close scanner on %s.' % str(region))
         pb_req = protobuf.ScanRequest()
 
         pb_req.region.type = 1

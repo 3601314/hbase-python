@@ -433,7 +433,7 @@ class Cursor(object):
             NoSuchZookeeperNodeError
 
         """
-        if len(self._buffer) == 0:
+        while len(self._buffer) == 0:
             batch = self._client.iter_scanner(self.scanner)
             if batch is None:
                 self.close()
@@ -462,9 +462,9 @@ class Cursor(object):
             NoSuchZookeeperNodeError
 
         """
-        if len(self._buffer) == 0:
+        while len(self._buffer) == 0:
             batch = self._client.iter_scanner(self.scanner)
-            if batch is None or len(batch) == 0:
+            if batch is None:
                 self.close()
                 raise StopIteration()
             self._buffer.extend(batch)
