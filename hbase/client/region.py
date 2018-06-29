@@ -128,6 +128,16 @@ class Region(object):
                 'Region or str expected, got %s.' % str(type(other))
             )
 
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self._start_value <= other < self._end_value
+        elif isinstance(other, Region):
+            return self._start_value == other._start_value and self._end_value == other._end_value
+        else:
+            raise TypeError(
+                'Region or str expected, got %s.' % str(type(other))
+            )
+
 
 class RegionManager(object):
 
@@ -273,7 +283,7 @@ class RegionManager(object):
 
         host, port = server_info.split(':')
         port = int(port)
-        table = region_info.table_name.qualifier.decode()
+        table = region_info.table_name.namespace.decode() + ':' + region_info.table_name.qualifier.decode()
         start_key = region_info.start_key.decode()
         end_key = region_info.end_key.decode()
         return Region(region_name, table, start_key, end_key, host, port)

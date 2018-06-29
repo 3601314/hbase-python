@@ -987,12 +987,21 @@ class Client(object):
         try:
             pb_resp = region_service.request(pb_req)
         except RegionError:
-            # refresh the region information and retry the operation
-            region = self._region_manager.get_region(table, key, use_cache=False)
-            region_service = self._region_manager.get_service(region)
-            pb_req.region.value = region.name.encode()
-            # if the new region still doesn't work, it is a fatal error
-            pb_resp = region_service.request(pb_req)
+            while True:
+                time.sleep(3)
+                # print('DEBUG: put() RegionError')
+                # print(repr(region))
+                # refresh the region information and retry the operation
+                region = self._region_manager.get_region(table, key, use_cache=False)
+                region_service = self._region_manager.get_service(region)
+                pb_req.region.value = region.name.encode()
+                # if the new region still doesn't work, it is a fatal error
+                # print(repr(region))
+                try:
+                    pb_resp = region_service.request(pb_req)
+                    break
+                except RegionError:
+                    continue
         return pb_resp.processed
 
     def check_and_put(self,
