@@ -131,12 +131,23 @@ class Request(object):
 
         message = b'HBas\x00\x50' + struct.pack('>I', len(header_bytes)) + header_bytes
         self._sock.settimeout(9)
-        try:
-            self._sock.send(message)
-        except socket.error:
-            raise exceptions.TransportError(
-                'Failed to send hello message to server %s:%d.' % (self._host, self._port)
-            )
+        self._sock_send(message)
+
+    def _sock_send(self, data):
+        target_size = len(data)
+        sent_size = 0
+        while sent_size < target_size:
+            try:
+                pack_size = self._sock.send(data[sent_size:])
+            except socket.error:
+                raise exceptions.TransportError(
+                    'Failed to send request to server %s:%d.' % (self._host, self._port)
+                )
+            if pack_size == 0:
+                raise exceptions.TransportError(
+                    'Failed to send request to server %s:%d.' % (self._host, self._port)
+                )
+            sent_size += pack_size
 
     def close(self):
         if self._sock:
@@ -190,19 +201,14 @@ class Request(object):
         to_send = struct.pack(">IB", total_size, header_size)
         to_send += header_bytes + req_size_bytes + req_bytes
 
-        try:
-            with self._call_lock:
-                self._sock.send(to_send)
-        except socket.error:
-            raise exceptions.TransportError(
-                'Failed to send request to server %s:%d.' % (self._host, self._port)
-            )
+        with self._call_lock:
+            self._sock_send(to_send)
 
     def _receive(self):
         with self._call_lock:
-            data = self._recv_n(4)
+            data = self._sock_recv(4)
             total_size = struct.unpack(">I", data)[0]
-            data = self._recv_n(total_size)
+            data = self._sock_recv(total_size)
 
         header_size, header_start = decode_varint(data, 0)
         header_end = header_start + header_size
@@ -214,7 +220,7 @@ class Request(object):
             return pb_header, None, error
         return pb_header, data[header_end:], None
 
-    def _recv_n(self, n):
+    def _sock_recv(self, n):
         buffer = io.BytesIO()
         received = 0
         while received < n:
