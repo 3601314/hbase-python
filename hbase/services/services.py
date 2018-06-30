@@ -8,6 +8,7 @@
 from hbase import exceptions
 from hbase.services import request
 from hbase.services import zookeeper
+import threading
 
 
 class Service(object):
@@ -23,7 +24,9 @@ class Service(object):
 
         self._host = host
         self._port = port
+
         self._request = None
+        self._lock = threading.Semaphore(1)
 
         self._rebuild_request()
 
@@ -56,7 +59,8 @@ class Service(object):
         try:
             return self._request.call(pb_req)
         except exceptions.TransportError or exceptions.ProtocolError:
-            self._rebuild_request()
+            with self._lock:
+                self._rebuild_request()
             return self._request.call(pb_req)
 
 

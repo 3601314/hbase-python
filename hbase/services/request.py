@@ -64,6 +64,7 @@ class Request(object):
         self._service_name = service_name
 
         self._call_lock = threading.Semaphore(1)
+        self._call_lock_ = threading.Semaphore(1)
         self._call_id = 0
         self._lock_dict = dict()  # call_id => semaphore
 
@@ -85,6 +86,8 @@ class Request(object):
                 self._lock_dict[call_id] = threading.Semaphore(0)
             lock = self._lock_dict[call_id]
         lock.acquire()
+        with self._call_lock:
+            del self._lock_dict[call_id]
 
     def _notify_call(self, call_id):
         with self._call_lock:
@@ -103,7 +106,9 @@ class Request(object):
         with self._resp_lock:
             if call_id not in self._resp_dict:
                 raise exceptions.TransportError('FATAL ERROR: Response for call [%d] does not exist.' % call_id)
-            return self._resp_dict[call_id]
+            resp = self._resp_dict[call_id]
+            del self._resp_dict[call_id]
+            return resp
 
     def _connect(self):
         """Connect to the server and send "Hello" message.
@@ -158,7 +163,8 @@ class Request(object):
     def call(self, pb_req):
         # send request
         call_id = self._next_call_id()
-        method_name = pb.get_request_name(pb_req)
+        with self._call_lock:
+            method_name = pb.get_request_name(pb_req)
         self._send(call_id, method_name, pb_req)
 
         # receive response
@@ -178,6 +184,8 @@ class Request(object):
                 raise exceptions.RegionServerStoppedError(error)
             elif error == 'org.apache.hadoop.hbase.exceptions.RegionOpeningException':
                 raise exceptions.RegionOpeningError(error)
+            elif error == 'org.apache.hadoop.hbase.RegionTooBusyException':
+                raise exceptions.RegionTooBusyError(error)
             else:
                 raise exceptions.RequestError(error)
         pb_resp_size, resp_obj_start = decode_varint(data, 0)
@@ -205,7 +213,7 @@ class Request(object):
             self._sock_send(to_send)
 
     def _receive(self):
-        with self._call_lock:
+        with self._call_lock_:
             data = self._sock_recv(4)
             total_size = struct.unpack(">I", data)[0]
             data = self._sock_recv(total_size)

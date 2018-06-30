@@ -7,6 +7,7 @@
 
 import io
 import struct
+import threading
 
 from hbase import protobuf
 from hbase import services, exceptions
@@ -159,6 +160,7 @@ class RegionManager(object):
             exceptions.ZookeeperProtocolError: Invalid response.
 
         """
+        self._lock = threading.Semaphore(1)
         self._tree = rbtree.RBTree()
         self._meta_service = services.MetaService(zkquorum)
         self._region_services = dict()
@@ -188,10 +190,22 @@ class RegionManager(object):
             exceptions.RequestError: Failed to get a region.
 
         """
-        meta_key = self._make_meta_key(table, key)
-        if use_cache:
-            node = self._tree.find(meta_key[:-2])
-            if node is None:
+        with self._lock:
+            meta_key = self._make_meta_key(table, key)
+            if use_cache:
+                node = self._tree.find(meta_key[:-2])
+                if node is None:
+                    region = self._region_lookup(meta_key)
+                    if region is None:
+                        raise exceptions.RequestError(
+                            'Failed to get region.'
+                        )
+                    self._add_to_cache(region)
+                    return region
+                else:
+                    return node.value
+            else:
+                self._remove_from_cache(meta_key[:-2])
                 region = self._region_lookup(meta_key)
                 if region is None:
                     raise exceptions.RequestError(
@@ -199,17 +213,6 @@ class RegionManager(object):
                     )
                 self._add_to_cache(region)
                 return region
-            else:
-                return node.value
-        else:
-            self._remove_from_cache(meta_key[:-2])
-            region = self._region_lookup(meta_key)
-            if region is None:
-                raise exceptions.RequestError(
-                    'Failed to get region.'
-                )
-            self._add_to_cache(region)
-            return region
 
     @staticmethod
     def _make_meta_key(table, key):
@@ -301,10 +304,11 @@ class RegionManager(object):
             exceptions.TransportError: Failed to connect.
 
         """
-        host, port = region.host, region.port
-        try:
-            service = self._region_services[(host, port)]
-        except KeyError:
-            service = services.RegionService(host, port)
-            self._region_services[(host, port)] = service
-        return service
+        with self._lock:
+            host, port = region.host, region.port
+            try:
+                service = self._region_services[(host, port)]
+            except KeyError:
+                service = services.RegionService(host, port)
+                self._region_services[(host, port)] = service
+            return service

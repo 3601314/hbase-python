@@ -50,6 +50,10 @@ class RegionOpeningError(RegionError):
     pass
 
 
+class RegionTooBusyError(RegionError):
+    pass
+
+
 class ServerIOError(RequestError):
     """Server side IO error.
 

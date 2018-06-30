@@ -6,6 +6,8 @@
 """
 
 import os
+import queue
+import threading
 from collections import deque
 
 from . import client
@@ -19,7 +21,8 @@ class Table(object):
                  namespace,
                  name,
                  write_batch_size,
-                 read_batch_size):
+                 read_batch_size,
+                 num_put_thread=5):
         """Table object.
 
         Args:
@@ -36,6 +39,14 @@ class Table(object):
 
         self._full_name = namespace.prefix + name
         self._client = namespace.client
+
+        self._put_task_queue = queue.Queue(100)
+        self._put_threads = [
+            threading.Thread(target=self._put)
+            for _ in range(num_put_thread)
+        ]
+        for thread in self._put_threads:
+            thread.start()
 
     @property
     def name(self):
@@ -226,7 +237,13 @@ class Table(object):
             NoSuchZookeeperNodeError
 
         """
-        self._client.put(self._full_name, row)
+        # self._client.put(self._full_name, row)
+        self._put_task_queue.put(row, block=True)
+
+    def _put(self):
+        while True:
+            row = self._put_task_queue.get(block=True)
+            self._client.put(self._full_name, row)
 
     def check_and_put(self,
                       row,
