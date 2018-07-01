@@ -98,12 +98,13 @@ class Table(object):
         """
         return self._client
 
-    def get(self, key, columns=None):
+    def get(self, key, columns=None, filter_=None):
         """Get a row with the row key.
 
         Args:
             key (str): Row key.
             columns (tuple[str]|list[str]): Columns to get.
+            filter_ (client.filters.Filter): Filter object.
 
         Returns:
             client.Row: The row object.
@@ -119,7 +120,7 @@ class Table(object):
             NoSuchZookeeperNodeError
 
         """
-        return self._client.get(self._full_name, key, columns)
+        return self._client.get(self._full_name, key, columns, filter_)
 
     def get_one(self, key_only=False):
         """Get the first rows sample from the table.

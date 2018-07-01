@@ -135,7 +135,7 @@ class Request(object):
         header_bytes = header.SerializeToString()
 
         message = b'HBas\x00\x50' + struct.pack('>I', len(header_bytes)) + header_bytes
-        self._sock.settimeout(9)
+        self._sock.settimeout(60)
         self._sock_send(message)
 
     def _sock_send(self, data):

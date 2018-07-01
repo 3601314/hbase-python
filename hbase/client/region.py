@@ -8,6 +8,7 @@
 import io
 import struct
 import threading
+import time
 
 from hbase import protobuf
 from hbase import services, exceptions
@@ -253,7 +254,16 @@ class RegionManager(object):
         req.region.type = 1
         req.region.value = b'hbase:meta,,1'
 
-        resp = self._meta_service.request(req)
+        try:
+            resp = self._meta_service.request(req)
+        except exceptions.RegionError:
+            while True:
+                time.sleep(3)
+                try:
+                    resp = self._meta_service.request(req)
+                    break
+                except exceptions.RegionError:
+                    continue
         cells = resp.result.cell
         if len(cells) == 0:
             return None

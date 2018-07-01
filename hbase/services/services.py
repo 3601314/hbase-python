@@ -4,6 +4,7 @@
 @author: xi
 @since: 2018-05-18
 """
+import time
 
 from hbase import exceptions
 from hbase.services import request
@@ -59,9 +60,11 @@ class Service(object):
         try:
             return self._request.call(pb_req)
         except exceptions.TransportError or exceptions.ProtocolError:
-            with self._lock:
-                self._rebuild_request()
-            return self._request.call(pb_req)
+            for _ in range(3):
+                time.sleep(3)
+                with self._lock:
+                    self._rebuild_request()
+                return self._request.call(pb_req)
 
 
 class MasterService(Service):
