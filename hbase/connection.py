@@ -8,8 +8,8 @@
 import collections
 
 from . import client
-from .namespace import Namespace
 from .exceptions import *
+from .namespace import Namespace
 
 
 class Connection(object):

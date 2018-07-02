@@ -46,6 +46,7 @@ class Table(object):
             for _ in range(num_put_thread)
         ]
         for thread in self._put_threads:
+            thread.setDaemon(True)
             thread.start()
 
     @property
@@ -466,7 +467,7 @@ class Cursor(object):
         """Get next row.
 
         Returns:
-           hbase.client.Row: Row object.
+           client.Row: Row object.
 
         Raises:
             StopIteration: If all rows have been iterated.
