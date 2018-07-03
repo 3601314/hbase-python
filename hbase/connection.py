@@ -20,6 +20,8 @@ class Threads(object):
     def __init__(self, num_threads, max_tasks):
         self._num_threads = num_threads
 
+        self._done_lock = threading.Semaphore(0)
+        self._ready_lock = threading.Semaphore(0)
         self._queue = queue.Queue(max_tasks)
         self._threads = [
             threading.Thread(target=self._target)
@@ -44,6 +46,19 @@ class Threads(object):
         if args is None:
             args = ()
         self._queue.put((fn, args, callback), block=True)
+
+    def wait_all(self):
+        for _ in range(self._num_threads):
+            task = (
+                lambda: self._done_lock.release(),
+                (),
+                lambda _: self._ready_lock.acquire()
+            )
+            self._queue.put(task, block=True)
+        for _ in range(self._num_threads):
+            self._done_lock.acquire()
+        for _ in range(self._num_threads):
+            self._ready_lock.release()
 
     def terminate(self):
         for _ in range(self._num_threads):
@@ -95,7 +110,7 @@ class Connection(object):
         return self._threads
 
     def close(self):
-        self._threads.terminate()
+        self._threads.wait_all()
         self._on_close(self)
 
     def __enter__(self):
