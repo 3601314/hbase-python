@@ -37,11 +37,10 @@ Get a row by key:
 
     import hbase
 
-    HOSTNAME = 'localhost'
-    PORT = 8080
+    zk = 'sis3.ustcdm.org:2181,sis4.ustcdm.org:2181'
 
     if __name__ == '__main__':
-        with hbase.ConnectionPool(HOSTNAME, PORT).connect() as conn:
+        with hbase.ConnectionPool(zk).connect() as conn:
             table = conn['mytest']['videos']
             row = table.get('00001')
             print(row)
@@ -53,11 +52,10 @@ Scan a table:
 
     import hbase
 
-    HOSTNAME = 'localhost'
-    PORT = 8080
+    zk = 'sis3.ustcdm.org:2181,sis4.ustcdm.org:2181'
 
     if __name__ == '__main__':
-        with hbase.ConnectionPool(HOSTNAME, PORT).connect() as conn:
+        with hbase.ConnectionPool(zk).connect() as conn:
             table = conn['mytest']['videos']
             for row in table.scan():
                 print(row)
@@ -69,11 +67,10 @@ Put a record to a table:
 
     import hbase
 
-    HOSTNAME = 'localhost'
-    PORT = 8080
+    zk = 'sis3.ustcdm.org:2181,sis4.ustcdm.org:2181'
 
     if __name__ == '__main__':
-        with hbase.ConnectionPool(HOSTNAME, PORT).connect() as conn:
+        with hbase.ConnectionPool(zk).connect() as conn:
             table = conn['mytest']['videos']
             table.put(hbase.Row(
                 '0001', {
@@ -89,12 +86,10 @@ Write a file to a table:
 
     import hbase
 
-    HOSTNAME = 'localhost'
-    PORT = 8080
+    zk = 'sis3.ustcdm.org:2181,sis4.ustcdm.org:2181'
 
     if __name__ == '__main__':
-        video_file = './test_video.mp4'
-        with hbase.ConnectionPool(HOSTNAME, PORT).connect() as conn:
+        with hbase.ConnectionPool(zk).connect() as conn:
             table = conn['mytest']['videos']
             table.write_file(video_file)  # default filename is "test_video.mp4"
         exit()
