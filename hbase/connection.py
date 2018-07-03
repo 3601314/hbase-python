@@ -6,10 +6,50 @@
 """
 
 import collections
+import queue
+import threading
 
 from . import client
 from .exceptions import *
 from .namespace import Namespace
+from . import conf
+
+
+class Threads(object):
+
+    def __init__(self, num_threads, max_tasks):
+        self._num_threads = num_threads
+
+        self._queue = queue.Queue(max_tasks)
+        self._threads = [
+            threading.Thread(target=self._target)
+            for _ in range(num_threads)
+        ]
+        for thread in self._threads:
+            thread.setDaemon(True)
+            thread.start()
+
+    def _target(self):
+        while True:
+            task = self._queue.get(block=True)
+            if task is None:
+                break
+            fn, args, callback = task
+            ret = fn(*args)
+            if callback is not None:
+                callback(ret)
+
+    def put_task(self, fn, args, callback=None):
+        assert fn is not None
+        if args is None:
+            args = ()
+        self._queue.put((fn, args, callback), block=True)
+
+    def terminate(self):
+        for _ in range(self._num_threads):
+            self._queue.put(None, block=True)
+        for thread in self._threads:
+            thread.join()
 
 
 class Connection(object):
@@ -34,6 +74,8 @@ class Connection(object):
         self._client = client.Client(zkquorum)
         self._namespaces = dict()
 
+        self._threads = Threads(conf.num_threads_per_conn, conf.num_tasks_per_conn)
+
     @property
     def zkquorum(self):
         return self._zkquorum
@@ -48,7 +90,12 @@ class Connection(object):
         """
         return self._client
 
+    @property
+    def threads(self):
+        return self._threads
+
     def close(self):
+        self._threads.terminate()
         self._on_close(self)
 
     def __enter__(self):

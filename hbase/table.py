@@ -6,8 +6,6 @@
 """
 
 import os
-import queue
-import threading
 from collections import deque
 
 from . import client
@@ -21,8 +19,7 @@ class Table(object):
                  namespace,
                  name,
                  write_batch_size,
-                 read_batch_size,
-                 num_put_thread=5):
+                 read_batch_size):
         """Table object.
 
         Args:
@@ -38,16 +35,12 @@ class Table(object):
         self._read_batch_size = read_batch_size
 
         self._full_name = namespace.prefix + name
+        self._conn = namespace.connection
         self._client = namespace.client
 
-        self._put_task_queue = queue.Queue(100)
-        self._put_threads = [
-            threading.Thread(target=self._put)
-            for _ in range(num_put_thread)
-        ]
-        for thread in self._put_threads:
-            thread.setDaemon(True)
-            thread.start()
+    @property
+    def connection(self):
+        return self._conn
 
     @property
     def name(self):
@@ -223,11 +216,12 @@ class Table(object):
                     verbose(count, row)
         return count
 
-    def put(self, row):
+    def put(self, row, callback=None):
         """Put one row into the table.
 
         Args:
             row (hbase.client.Row): Row object.
+            callback (callable|None): Callback when the put operation complete.
 
         Raises:
             RegionError
@@ -239,13 +233,11 @@ class Table(object):
             NoSuchZookeeperNodeError
 
         """
-        # self._client.put(self._full_name, row)
-        self._put_task_queue.put(row, block=True)
-
-    def _put(self):
-        while True:
-            row = self._put_task_queue.get(block=True)
-            self._client.put(self._full_name, row)
+        self._conn.threads.put_task(
+            self._client.put,
+            (self._full_name, row),
+            callback
+        )
 
     def check_and_put(self,
                       row,

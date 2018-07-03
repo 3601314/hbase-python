@@ -28,6 +28,10 @@ class Namespace(object):
         self._tables = dict()
 
     @property
+    def connection(self):
+        return self._conn
+
+    @property
     def name(self):
         return self._name
 
