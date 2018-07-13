@@ -8,3 +8,5 @@
 from .connection import ConnectionPool
 from .connection import Connection
 from .client import *
+from .namespace import Namespace
+from .table import Table

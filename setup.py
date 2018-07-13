@@ -9,12 +9,14 @@ if __name__ == '__main__':
     setup(
         name='hbase-python',
         packages=[
-            'hbase_rest',
-            'hbase_rest.protobuf_schema'
+            'hbase',
+            'hbase.client',
+            'hbase.protobuf',
+            'hbase.services'
         ],
-        version='0.4',
+        version='0.5',
         keywords=('hbase', 'hbase-client', 'hadoop'),
-        description='User friendly HBase client for Python 3.',
+        description='User friendly HBase client for Python 3. (Pure python implementation)',
         long_description=long_description,
         license='Free',
         author='dm.ustc.edu.cn',
