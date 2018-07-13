@@ -10,9 +10,9 @@ import queue
 import threading
 
 from . import client
+from . import conf
 from .exceptions import *
 from .namespace import Namespace
-from . import conf
 
 
 class Threads(object):
@@ -207,6 +207,27 @@ class Connection(object):
 
         """
         self._client.create_namespace(name, props)
+
+    def delete_namespace(self, name):
+        """Delete a namespace.
+
+        Args:
+            name (str): Namespace name.
+
+        Raises:
+            NamespaceNotFoundError
+            ServerIOError
+            RequestError
+
+            TransportError
+            ZookeeperProtocolError
+            ServiceProtocolError
+            NoSuchZookeeperNodeError
+
+        """
+        self._client.delete_namespace(name)
+        if name in self._namespaces:
+            del self._namespaces[name]
 
 
 class ConnectionPool(object):

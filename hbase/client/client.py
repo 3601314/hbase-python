@@ -325,6 +325,8 @@ class Client(object):
             err = str(e)
             if err == 'org.apache.hadoop.hbase.NamespaceNotFoundException':
                 raise NamespaceNotFoundError()
+            elif err == 'org.apache.hadoop.hbase.constraint.ConstraintException':
+                raise RequestError('Failed to delete namespace due to the constraint exception.')
             elif err == 'java.io.IOException':
                 raise ServerIOError('Bad namespace name.')
             else:
