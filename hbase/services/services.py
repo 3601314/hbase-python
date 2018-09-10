@@ -69,7 +69,7 @@ class Service(object):
 
 class MasterService(Service):
 
-    def __init__(self, zkquorum):
+    def __init__(self, zkquorum, zkpath=None):
         """Master service.
 
         Args:
@@ -83,16 +83,17 @@ class MasterService(Service):
 
         """
         self._zkquorum = zkquorum
+        self._zkpath = zkpath
         super(MasterService, self).__init__(None, None)
 
     def _rebuild_request(self):
-        self._host, self._port = zookeeper.get_master(self._zkquorum)
+        self._host, self._port = zookeeper.get_master(self._zkquorum, self._zkpath)
         self._request = request.Request(self._host, self._port, 'MasterService')
 
 
 class MetaService(Service):
 
-    def __init__(self, zkquorum):
+    def __init__(self, zkquorum, zkpath):
         """Meta region service.
 
         Args:
@@ -106,10 +107,11 @@ class MetaService(Service):
 
         """
         self._zkquorum = zkquorum
+        self._zkpath = zkpath
         super(MetaService, self).__init__(None, None)
 
     def _rebuild_request(self):
-        self._host, self._port = zookeeper.get_region(self._zkquorum)
+        self._host, self._port = zookeeper.get_region(self._zkquorum, self._zkpath)
         self._request = request.Request(self._host, self._port, 'ClientService')
 
 

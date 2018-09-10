@@ -20,13 +20,14 @@ PATH_MASTER = '/hbase/master'
 PATH_META_REGION = '/hbase/meta-region-server'
 
 
-def get_master(zkquorum, timeout=9, retries=3):
+def get_master(zkquorum, timeout=9, retries=3, zkpath=None):
     """Get master server address.
 
     Args:
         zkquorum (str):
         timeout (int):
         retries (int):
+        zkpath (str): root path for hbase
 
     Returns:
         tuple: (hostname, port)
@@ -37,16 +38,19 @@ def get_master(zkquorum, timeout=9, retries=3):
         exceptions.ZookeeperProtocolError: Invalid response.
 
     """
-    return _get_address(zkquorum, PATH_MASTER, timeout, retries)
+    if zkpath is None:
+        zkpath = PATH_MASTER
+    return _get_address(zkquorum, zkpath, timeout, retries)
 
 
-def get_region(zkquorum, timeout=9, retries=3):
+def get_region(zkquorum, timeout=9, retries=3, zkpath=None):
     """Get meta region server address.
 
     Args:
         zkquorum (str):
         timeout (int):
         retries (int):
+        zkpath (str): root path for hbase
 
     Returns:
         tuple: (hostname, port)
@@ -57,7 +61,9 @@ def get_region(zkquorum, timeout=9, retries=3):
         exceptions.ZookeeperProtocolError: Invalid response.
 
     """
-    return _get_address(zkquorum, PATH_META_REGION, timeout, retries)
+    if zkpath is None:
+        zkpath = PATH_META_REGION
+    return _get_address(zkquorum, zkpath, timeout, retries)
 
 
 def _get_address(zkquorum, path, timeout=9, retries=3):

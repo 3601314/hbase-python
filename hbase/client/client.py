@@ -127,7 +127,7 @@ class ColumnFamilyAttributes(dict):
 
 class Client(object):
 
-    def __init__(self, zkquorum):
+    def __init__(self, zkquorum, zk_master_path=None, zk_region_path=None):
         """HBase client.
 
         Args:
@@ -142,8 +142,8 @@ class Client(object):
         """
         self._zkquorum = zkquorum
 
-        self._master_service = services.MasterService(zkquorum)
-        self._region_manager = _region.RegionManager(zkquorum)
+        self._master_service = services.MasterService(zkquorum, zk_master_path)
+        self._region_manager = _region.RegionManager(zkquorum, zk_region_path)
 
     def __enter__(self):
         return self
