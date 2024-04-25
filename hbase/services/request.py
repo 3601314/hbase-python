@@ -13,6 +13,7 @@ import threading
 
 from hbase import exceptions
 from hbase import protobuf as pb
+from hbase.conf import EFFECTIVE_USER
 
 
 def encode_varint(value):
@@ -130,7 +131,7 @@ class Request(object):
             )
 
         header = pb.ConnectionHeader()
-        header.user_info.effective_user = 'hbase-python'
+        header.user_info.effective_user = EFFECTIVE_USER
         header.service_name = self._service_name
         header_bytes = header.SerializeToString()
 
