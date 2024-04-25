@@ -16,14 +16,17 @@ class Conf:
     PATH_MASTER = os.environ.get('PATH_MASTER', '/hbase/master')
     PATH_META_REGION = os.environ.get('PATH_META_REGION', '/hbase/meta-region-server')
 
-    def effect_user(self, effect_user='hbase-python'):
-        self.EFFECTIVE_USER = effect_user
-        return self
+    @classmethod
+    def effect_user(cls, effect_user='hbase-python'):
+        cls.EFFECTIVE_USER = effect_user
+        return cls
 
-    def master_path(self, master_path='/hbase/master'):
-        self.PATH_MASTER = master_path
-        return self
+    @classmethod
+    def master_path(cls, master_path='/hbase/master'):
+        cls.PATH_MASTER = master_path
+        return cls
 
-    def meta_region_path(self, meta_region_path='/hbase/meta-region-server'):
-        self.PATH_META_REGION = meta_region_path
-        return self
+    @classmethod
+    def meta_region_path(cls, meta_region_path='/hbase/meta-region-server'):
+        cls.PATH_META_REGION = meta_region_path
+        return cls
