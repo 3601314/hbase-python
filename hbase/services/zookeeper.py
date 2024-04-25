@@ -15,9 +15,9 @@ from kazoo.handlers.threading import KazooTimeoutError
 
 from hbase import exceptions
 from hbase import protobuf as pb
+from hbase.conf import Conf
 
-PATH_MASTER = '/hbase/master'
-PATH_META_REGION = '/hbase/meta-region-server'
+
 
 
 def get_master(zkquorum, timeout=9, retries=3, zkpath=None):
@@ -39,7 +39,7 @@ def get_master(zkquorum, timeout=9, retries=3, zkpath=None):
 
     """
     if zkpath is None:
-        zkpath = PATH_MASTER
+        zkpath = Conf.PATH_MASTER
     return _get_address(zkquorum, zkpath, timeout, retries)
 
 
@@ -62,7 +62,7 @@ def get_region(zkquorum, timeout=9, retries=3, zkpath=None):
 
     """
     if zkpath is None:
-        zkpath = PATH_META_REGION
+        zkpath = Conf.PATH_META_REGION
     return _get_address(zkquorum, zkpath, timeout, retries)
 
 
