@@ -93,7 +93,7 @@ class MasterService(Service):
 
 class MetaService(Service):
 
-    def __init__(self, zkquorum, zkpath):
+    def __init__(self, zkquorum, zkpath=None):
         """Meta region service.
 
         Args:

@@ -143,7 +143,7 @@ class Region(object):
 
 class RegionManager(object):
 
-    def __init__(self, zkquorum):
+    def __init__(self, zkquorum, zkpath=None):
         """Region manager.
 
         A region manager is used to:
@@ -163,7 +163,7 @@ class RegionManager(object):
         """
         self._lock = threading.Semaphore(1)
         self._tree = rbtree.RBTree()
-        self._meta_service = services.MetaService(zkquorum)
+        self._meta_service = services.MetaService(zkquorum, zkpath)
         self._region_services = dict()
 
     def close(self):
