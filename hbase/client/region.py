@@ -245,15 +245,16 @@ class RegionManager(object):
             pass
 
     def _region_lookup(self, meta_key):
+        #Fix from https://github.com/3601314/hbase-python/issues/3
         column = protobuf.Column()
         column.family = b'info'
-        req = protobuf.GetRequest()
-        req.get.row = meta_key.encode()
-        req.get.column.extend([column])
-        req.get.closest_row_before = True
+        req = protobuf.ScanRequest()
+        req.scan.column.extend([column])
+        req.scan.start_row = meta_key.encode()
+        req.scan.reversed = True
         req.region.type = 1
         req.region.value = b'hbase:meta,,1'
-
+        req.number_of_rows = 1
         try:
             resp = self._meta_service.request(req)
         except exceptions.RegionError:
@@ -264,7 +265,10 @@ class RegionManager(object):
                     break
                 except exceptions.RegionError:
                     continue
-        cells = resp.result.cell
+        cells = []
+        for result in resp.results:
+            cells = result.cell
+            break
         if len(cells) == 0:
             return None
 
