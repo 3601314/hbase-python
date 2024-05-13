@@ -9,6 +9,8 @@ import os
 num_threads_per_conn = 5
 num_tasks_per_conn = 100
 
+thread_pool_size = 10
+fail_task_retry = 3
 
 # Modify This Configuration on use zk path
 class Conf:
