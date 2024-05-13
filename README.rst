@@ -45,6 +45,21 @@ Get a row by key:
             row = table.get('00001')
             print(row)
         exit()
+Get multi rows by keys:
+
+.. code-block:: python
+
+    import hbase
+
+    zk = 'sis3.ustcdm.org:2181,sis4.ustcdm.org:2181'
+
+    if __name__ == '__main__':
+        with hbase.ConnectionPool(zk).connect() as conn:
+            table = conn['mytest']['videos']
+            row_kv = table.mget(['00001','00002', '00002'])
+            print(row_kv)
+        exit()
+
 
 Scan a table:
 
